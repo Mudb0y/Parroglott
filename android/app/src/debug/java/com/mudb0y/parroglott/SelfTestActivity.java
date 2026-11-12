@@ -21,7 +21,8 @@ import java.io.IOException;
  * --ei stopafter MS stops speech that long after its first audio. --es lang TAG
  * asks for a language instead of a voice, the way screen readers do.
  * With --es download KEY (such as pol.pol.jacek) instead, it downloads and
- * installs that voice from Amazon and reports when it is in place. With
+ * installs that voice from Amazon and reports when it is in place; --es
+ * remove KEY deletes it again. With
  * --es update-base URL, the updater reads URL/stable/update.json and
  * URL/dev/update.json instead of GitHub; an empty URL undoes it. With
  * --es crash java the process dies, for testing crash reports, and
@@ -54,6 +55,19 @@ public class SelfTestActivity extends Activity {
             Updater.prefs(this).edit().putString("testBase", base.isEmpty() ? null : base)
                     .remove("outcome").remove("json").apply();
             Log.i(TAG, "DONE update-base " + base);
+            finish();
+            return;
+        }
+        String remove = getIntent().getStringExtra("remove");
+        if (remove != null) {
+            VoiceStore store = VoiceStore.get(this);
+            VoiceStore.Voice v = store.voice(remove);
+            if (v == null) {
+                Log.e(TAG, "FAIL no voice " + remove);
+            } else {
+                store.remove(v);
+                Log.i(TAG, "DONE remove " + remove);
+            }
             finish();
             return;
         }
