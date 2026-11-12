@@ -27,6 +27,8 @@ public class ParroglottTtsService extends TextToSpeechService {
     public void onCreate() {
         store = VoiceStore.get(this);
         pool = EnginePool.get(this);
+        // The engine runs whenever a screen reader does, even if the app is never opened.
+        Updater.schedule(this);
         super.onCreate();
     }
 

@@ -16,7 +16,8 @@
 
       buildToolsVersion = "35.0.0";
       android = pkgs.androidenv.composeAndroidPackages {
-        platformVersions = [ "35" ];
+        # 36 for the manifest's pageSizeCompat attribute.
+        platformVersions = [ "36" ];
         buildToolsVersions = [ buildToolsVersion ];
         includeNDK = false;
         includeEmulator = false;

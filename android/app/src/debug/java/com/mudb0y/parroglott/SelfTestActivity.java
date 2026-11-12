@@ -21,7 +21,11 @@ import java.io.IOException;
  * --ei stopafter MS stops speech that long after its first audio. --es lang TAG
  * asks for a language instead of a voice, the way screen readers do.
  * With --es download KEY (such as pol.pol.jacek) instead, it downloads and
- * installs that voice from Amazon and reports when it is in place.
+ * installs that voice from Amazon and reports when it is in place. With
+ * --es update-base URL, the updater reads URL/stable/update.json and
+ * URL/dev/update.json instead of GitHub; an empty URL undoes it. With
+ * --es crash java the process dies, for testing crash reports, and
+ * --es report FILE writes the crash report the app would share into FILE.
  */
 public class SelfTestActivity extends Activity {
     private static final String TAG = "ParroglottTest";
@@ -31,6 +35,28 @@ public class SelfTestActivity extends Activity {
     @Override
     protected void onCreate(Bundle saved) {
         super.onCreate(saved);
+        if ("java".equals(getIntent().getStringExtra("crash"))) throw new IllegalStateException("self-test crash");
+        String report = getIntent().getStringExtra("report");
+        if (report != null) {
+            new Thread(() -> {
+                try (java.io.FileWriter w = new java.io.FileWriter(new File(getExternalFilesDir(null), report))) {
+                    w.write(CrashReports.report(getApplicationContext()));
+                    Log.i(TAG, "DONE report " + report);
+                } catch (IOException e) {
+                    Log.e(TAG, "FAIL report: " + e);
+                }
+                runOnUiThread(this::finish);
+            }).start();
+            return;
+        }
+        String base = getIntent().getStringExtra("update-base");
+        if (base != null) {
+            Updater.prefs(this).edit().putString("testBase", base.isEmpty() ? null : base)
+                    .remove("outcome").remove("json").apply();
+            Log.i(TAG, "DONE update-base " + base);
+            finish();
+            return;
+        }
         String download = getIntent().getStringExtra("download");
         if (download != null) {
             download(download);

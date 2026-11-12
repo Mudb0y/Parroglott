@@ -165,6 +165,22 @@ public class DownloadService extends Service {
         }
     }
 
+    static String digest(java.io.File f, String algorithm) throws java.io.IOException {
+        java.security.MessageDigest md;
+        try {
+            md = java.security.MessageDigest.getInstance(algorithm);
+        } catch (java.security.NoSuchAlgorithmException e) {
+            throw new java.io.IOException(e);
+        }
+        try (java.io.InputStream in = new java.io.FileInputStream(f)) {
+            byte[] buf = new byte[1 << 16];
+            for (int n; (n = in.read(buf)) > 0; ) md.update(buf, 0, n);
+        }
+        StringBuilder sb = new StringBuilder();
+        for (byte b : md.digest()) sb.append(String.format("%02x", b));
+        return sb.toString();
+    }
+
     private Notification progress(String text, int percent) {
         PendingIntent open = PendingIntent.getActivity(this, 0,
                 new Intent(this, VoicesActivity.class), PendingIntent.FLAG_IMMUTABLE);

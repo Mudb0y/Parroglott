@@ -12,7 +12,7 @@ val signing = if (signingFile.isFile) Properties().apply { signingFile.inputStre
 
 android {
     namespace = "com.mudb0y.parroglott"
-    compileSdk = 35
+    compileSdk = 36
     buildToolsVersion = "35.0.0"
 
     defaultConfig {

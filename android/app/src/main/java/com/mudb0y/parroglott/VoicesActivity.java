@@ -18,7 +18,11 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
-/** One row per language; a language opens its voices, a voice opens what can be done with it. */
+/**
+ * A crash-report row when Parroglott last ended badly, the updates row, then
+ * one row per language; a language opens its voices, a voice opens what can
+ * be done with it.
+ */
 public class VoicesActivity extends Activity {
     private VoiceStore store;
     private ArrayAdapter<String> adapter;
@@ -26,6 +30,8 @@ public class VoicesActivity extends Activity {
     private final List<String> languages = new ArrayList<>();
     private TextToSpeech tts;
     private final Runnable refresh = () -> runOnUiThread(this::fill);
+    /** Read once per visit, not on every download tick. */
+    private boolean crashed;
 
     @Override
     protected void onCreate(Bundle saved) {
@@ -40,25 +46,35 @@ public class VoicesActivity extends Activity {
         ListView list = new ListView(this);
         adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, rows);
         list.setAdapter(adapter);
-        list.setOnItemClickListener((parent, view, position, id) -> language(languages.get(position)));
+        list.setOnItemClickListener((parent, view, position, id) -> {
+            int lead = crashed ? 2 : 1;
+            if (crashed && position == 0) startActivity(new Intent(this, CrashReportActivity.class));
+            else if (position == lead - 1) startActivity(new Intent(this, UpdatesActivity.class));
+            else language(languages.get(position - lead));
+        });
         setContentView(list);
         fill();
         if (Build.VERSION.SDK_INT >= 33
                 && checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED)
             requestPermissions(new String[] {Manifest.permission.POST_NOTIFICATIONS}, 1);
         tts = new TextToSpeech(this, status -> { }, getPackageName());
+        Updater.schedule(this);
+        if (saved == null) Updater.check(this, false, null);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
         DownloadService.addListener(refresh);
+        Updater.addListener(refresh);
+        crashed = CrashReports.count(this) > 0;
         fill();
     }
 
     @Override
     protected void onPause() {
         DownloadService.removeListener(refresh);
+        Updater.removeListener(refresh);
         super.onPause();
     }
 
@@ -81,6 +97,8 @@ public class VoicesActivity extends Activity {
 
     private void fill() {
         rows.clear();
+        if (crashed) rows.add(getString(R.string.crash_row));
+        rows.add(Updater.summary(this));
         for (String lang : languages) {
             List<VoiceStore.Voice> all = voices(lang);
             int ready = 0;
