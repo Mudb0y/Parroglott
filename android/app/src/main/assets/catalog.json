@@ -1,0 +1,665 @@
+{
+ "voices": [
+  {
+   "key": "ara.sau.sara",
+   "name": "Sara",
+   "languages": [
+    "ar-SA"
+   ],
+   "kind": "neural",
+   "url": "https://s3.amazonaws.com/lss-tts-voices/ivona/3586/packs/arm64/0ad6a1b844154401b0f9f5b2a4350f9e/ivona_ara.sau.sara.jar",
+   "bytes": 11192032,
+   "version": "2025-03-19T12:20:35Z"
+  },
+  {
+   "key": "ces.cze.jitka",
+   "name": "Jitka",
+   "languages": [
+    "cs-CZ"
+   ],
+   "kind": "neural",
+   "url": "https://s3.amazonaws.com/lss-tts-voices/ivona/3586/packs/arm64/d839370c4312447a971e318b92f3db55/ivona_ces.cze.jitka.jar",
+   "bytes": 3493579,
+   "version": "2025-03-19T12:20:35Z"
+  },
+  {
+   "key": "cym.gbr.geraint",
+   "name": "Geraint",
+   "languages": [
+    "cy-GB"
+   ],
+   "kind": "classic",
+   "url": "https://s3.amazonaws.com/lss-tts-voices/ivona/753/packs/arm/javaspec/e90d8c62e45bac84160242c405d605fb/ivona_cym.gbr.geraint.jar",
+   "bytes": 167298266,
+   "version": "2017-04-18T15:41:17Z"
+  },
+  {
+   "key": "cym.gbr.gwyneth",
+   "name": "Gwyneth",
+   "languages": [
+    "cy-GB"
+   ],
+   "kind": "classic",
+   "url": "https://s3.amazonaws.com/lss-tts-voices/ivona/753/packs/arm/javaspec/7f84dd10fd9862551f795c115b1eed97/ivona_cym.gbr.gwyneth.jar",
+   "bytes": 180699020,
+   "version": "2017-04-18T15:41:17Z"
+  },
+  {
+   "key": "dan.dnk.mads",
+   "name": "Mads",
+   "languages": [
+    "da-DK"
+   ],
+   "kind": "classic",
+   "url": "https://s3.amazonaws.com/lss-tts-voices/ivona/753/packs/arm/javaspec/5d237f3ad3666dbda4d77044bfc248b4/ivona_dan.dnk.mads.jar",
+   "bytes": 223482072,
+   "version": "2017-04-18T15:41:17Z"
+  },
+  {
+   "key": "dan.dnk.naja",
+   "name": "Naja",
+   "languages": [
+    "da-DK"
+   ],
+   "kind": "classic",
+   "url": "https://s3.amazonaws.com/lss-tts-voices/ivona/753/packs/arm/javaspec/1c1810e6cfebfab0b4535db85f0de9fc/ivona_dan.dnk.naja.jar",
+   "bytes": 200631310,
+   "version": "2017-04-18T15:41:17Z"
+  },
+  {
+   "key": "deu.deu.hans",
+   "name": "Hans",
+   "languages": [
+    "de-DE"
+   ],
+   "kind": "classic",
+   "url": "https://s3.amazonaws.com/lss-tts-voices/ivona/753/packs/arm/javaspec/da47f4abaf53d077cf5974855cd63d1e/ivona_deu.deu.hans.jar",
+   "bytes": 135300868,
+   "version": "2017-04-18T15:41:17Z"
+  },
+  {
+   "key": "deu.deu.marlene",
+   "name": "Marlene",
+   "languages": [
+    "de-DE"
+   ],
+   "kind": "classic",
+   "url": "https://s3.amazonaws.com/lss-tts-voices/ivona/2170/packs/arm64/javaspec/5180c5c6e3ae451c8f958c49a6760407/ivona_deu.deu.marlene.jar",
+   "bytes": 141065678,
+   "version": "2019-09-28T13:26:04Z"
+  },
+  {
+   "key": "deu.deu.vicki",
+   "name": "Vicki",
+   "languages": [
+    "de-DE"
+   ],
+   "kind": "neural",
+   "url": "https://s3.amazonaws.com/lss-tts-voices/ivona/3586/packs/arm64/479f1c44f70a4b59a53b89dead309339/ivona_deu.deu.vicki.jar",
+   "bytes": 6568920,
+   "version": "2025-03-19T12:20:35Z"
+  },
+  {
+   "key": "eng.aus.nicole",
+   "name": "Nicole",
+   "languages": [
+    "en-AU",
+    "en-NZ"
+   ],
+   "kind": "classic",
+   "url": "https://s3.amazonaws.com/lss-tts-voices/ivona/753/packs/arm/javaspec/9611ae38a05198d535ed43ed78cd4255/ivona_eng.aus.nicole.jar",
+   "bytes": 139468283,
+   "version": "2017-04-18T15:41:17Z"
+  },
+  {
+   "key": "eng.aus.olivia",
+   "name": "Olivia",
+   "languages": [
+    "en-AU"
+   ],
+   "kind": "neural",
+   "url": "https://s3.amazonaws.com/lss-tts-voices/ivona/3586/packs/arm64/9daea8c7fdb4496ca5db25e0490c3e99/ivona_eng.aus.olivia.jar",
+   "bytes": 7660517,
+   "version": "2025-03-19T12:20:35Z"
+  },
+  {
+   "key": "eng.aus.russell",
+   "name": "Russell",
+   "languages": [
+    "en-AU"
+   ],
+   "kind": "classic",
+   "url": "https://s3.amazonaws.com/lss-tts-voices/ivona/753/packs/arm/javaspec/a86b1f68ddfc22c4789a318f7846bc1e/ivona_eng.aus.russell.jar",
+   "bytes": 132353328,
+   "version": "2017-04-18T15:41:17Z"
+  },
+  {
+   "key": "eng.gbr.amy",
+   "name": "Amy",
+   "languages": [
+    "en-GB"
+   ],
+   "kind": "neural",
+   "url": "https://s3.amazonaws.com/lss-tts-voices/ivona/3586/packs/arm64/3de01e00c55d433689c0332737a80f18/ivona_eng.gbr.amy.jar",
+   "bytes": 7662361,
+   "version": "2025-03-19T12:20:35Z"
+  },
+  {
+   "key": "eng.gbr.brian",
+   "name": "Brian",
+   "languages": [
+    "en-GB"
+   ],
+   "kind": "classic",
+   "url": "https://s3.amazonaws.com/lss-tts-voices/ivona/753/packs/arm/javaspec/fcc933f73b7830fb11afc91b393a0aaa/ivona_eng.gbr.brian.jar",
+   "bytes": 149237227,
+   "version": "2017-04-18T15:41:17Z"
+  },
+  {
+   "key": "eng.irl.niamh",
+   "name": "Niamh",
+   "languages": [
+    "en-IE"
+   ],
+   "kind": "neural",
+   "url": "https://s3.amazonaws.com/lss-tts-voices/ivona/3586/packs/arm64/266007ed8dc74a7b8b2fd0dee7fd3db5/ivona_eng.irl.niamh.jar",
+   "bytes": 7659968,
+   "version": "2025-03-19T12:20:35Z"
+  },
+  {
+   "key": "eng.ind.kajal",
+   "name": "Kajal",
+   "languages": [
+    "en-IN"
+   ],
+   "kind": "neural",
+   "url": "https://s3.amazonaws.com/lss-tts-voices/ivona/3586/packs/arm64/89335d4b375248609f71a33031577849/ivona_eng.ind.kajal.jar",
+   "bytes": 12101751,
+   "version": "2025-03-19T12:20:35Z"
+  },
+  {
+   "key": "eng.ind.raveena",
+   "name": "Raveena",
+   "languages": [
+    "en-IN"
+   ],
+   "kind": "classic",
+   "url": "https://s3.amazonaws.com/lss-tts-voices/ivona/2203/packs/arm64/javaspec/1dbee4686e2243f090792b0278ca6da8/ivona_eng.ind.raveena.jar",
+   "bytes": 155031613,
+   "version": "2019-10-14T09:48:35Z"
+  },
+  {
+   "key": "eng.usa.joey",
+   "name": "Joey",
+   "languages": [
+    "en-US"
+   ],
+   "kind": "classic",
+   "url": "https://s3.amazonaws.com/lss-tts-voices/ivona/753/packs/arm/javaspec/0d0f213d5d13ada505751c352a35d702/ivona_eng.usa.joey.jar",
+   "bytes": 143582719,
+   "version": "2017-04-18T15:41:17Z"
+  },
+  {
+   "key": "eng.usa.salli",
+   "name": "Salli",
+   "languages": [
+    "en-US"
+   ],
+   "kind": "neural",
+   "url": "https://s3.amazonaws.com/lss-tts-voices/ivona/3586/packs/arm64/edc4fbf480d84854b05c4b6a3c8c7d9f/ivona_eng.usa.salli.jar",
+   "bytes": 7649895,
+   "version": "2025-03-19T12:20:35Z"
+  },
+  {
+   "key": "spa.esp.conchita",
+   "name": "Conchita",
+   "languages": [
+    "es-ES"
+   ],
+   "kind": "classic",
+   "url": "https://s3.amazonaws.com/lss-tts-voices/ivona/2170/packs/arm64/javaspec/db4392e5f1c24a8bb1099a29b596525f/ivona_spa.esp.conchita.jar",
+   "bytes": 128991856,
+   "version": "2019-09-28T13:26:04Z"
+  },
+  {
+   "key": "spa.esp.enrique",
+   "name": "Enrique",
+   "languages": [
+    "es-ES"
+   ],
+   "kind": "classic",
+   "url": "https://s3.amazonaws.com/lss-tts-voices/ivona/753/packs/arm/javaspec/6f1b02837df9595eaca444b0494d7a6b/ivona_spa.esp.enrique.jar",
+   "bytes": 96658420,
+   "version": "2017-04-18T15:41:17Z"
+  },
+  {
+   "key": "spa.esp.lucia",
+   "name": "Lucia",
+   "languages": [
+    "es-ES"
+   ],
+   "kind": "neural",
+   "url": "https://s3.amazonaws.com/lss-tts-voices/ivona/3586/packs/arm64/08e9718198324e868331c3f040951189/ivona_spa.esp.lucia.jar",
+   "bytes": 4055049,
+   "version": "2025-03-19T12:20:35Z"
+  },
+  {
+   "key": "spa.mex.mia",
+   "name": "Mia",
+   "languages": [
+    "es-MX"
+   ],
+   "kind": "neural",
+   "url": "https://s3.amazonaws.com/lss-tts-voices/ivona/3586/packs/arm64/12799e24825b447c80169d5e98c0d0fd/ivona_spa.mex.mia.jar",
+   "bytes": 4252571,
+   "version": "2025-03-19T12:20:35Z"
+  },
+  {
+   "key": "spa.usa.lupe",
+   "name": "Lupe",
+   "languages": [
+    "es-US"
+   ],
+   "kind": "neural",
+   "url": "https://s3.amazonaws.com/lss-tts-voices/ivona/3586/packs/arm64/1a0de5d3b5dc49bb819d37cb0e6f5616/ivona_spa.usa.lupe.jar",
+   "bytes": 4284181,
+   "version": "2025-03-19T12:20:35Z"
+  },
+  {
+   "key": "spa.usa.miguel",
+   "name": "Miguel",
+   "languages": [
+    "es-US"
+   ],
+   "kind": "classic",
+   "url": "https://s3.amazonaws.com/lss-tts-voices/ivona/753/packs/arm/javaspec/baa93fd325e4b6f586984c852bc4f26a/ivona_spa.usa.miguel.jar",
+   "bytes": 104765940,
+   "version": "2017-04-18T15:41:17Z"
+  },
+  {
+   "key": "spa.usa.penelope",
+   "name": "Penélope",
+   "languages": [
+    "es-US"
+   ],
+   "kind": "classic",
+   "url": "https://s3.amazonaws.com/lss-tts-voices/ivona/753/packs/arm/javaspec/ac9065b1f4e9d624c11d3ceba1198335/ivona_spa.usa.penelope.jar",
+   "bytes": 109359781,
+   "version": "2017-04-18T15:41:17Z"
+  },
+  {
+   "key": "fin.fin.suvi",
+   "name": "Suvi",
+   "languages": [
+    "fi-FI"
+   ],
+   "kind": "neural",
+   "url": "https://s3.amazonaws.com/lss-tts-voices/ivona/3586/packs/arm64/b379daa74a594cba8fa2f9777ef65b77/ivona_fin.fin.suvi.jar",
+   "bytes": 3786723,
+   "version": "2025-03-19T12:20:35Z"
+  },
+  {
+   "key": "fra.can.chantal",
+   "name": "Chantal",
+   "languages": [
+    "fr-CA"
+   ],
+   "kind": "classic",
+   "url": "https://s3.amazonaws.com/lss-tts-voices/ivona/753/packs/arm/javaspec/098ebfdeb4a52adfa7ef20f546ce0832/ivona_fra.can.chantal.jar",
+   "bytes": 128339192,
+   "version": "2017-04-18T15:41:17Z"
+  },
+  {
+   "key": "fra.can.gabrielle",
+   "name": "Gabrielle",
+   "languages": [
+    "fr-CA"
+   ],
+   "kind": "neural",
+   "url": "https://s3.amazonaws.com/lss-tts-voices/ivona/3586/packs/arm64/de07de1d9aa04937bd595d176226888b/ivona_fra.can.gabrielle.jar",
+   "bytes": 5185516,
+   "version": "2025-03-19T12:20:35Z"
+  },
+  {
+   "key": "fra.fra.celine",
+   "name": "Céline",
+   "languages": [
+    "fr-FR"
+   ],
+   "kind": "classic",
+   "url": "https://s3.amazonaws.com/lss-tts-voices/ivona/753/packs/arm/javaspec/c0440d3c1337dc99326e83af933a021f/ivona_fra.fra.celine.jar",
+   "bytes": 122800005,
+   "version": "2017-04-18T15:41:17Z"
+  },
+  {
+   "key": "fra.fra.lea",
+   "name": "Lea",
+   "languages": [
+    "fr-FR"
+   ],
+   "kind": "neural",
+   "url": "https://s3.amazonaws.com/lss-tts-voices/ivona/3586/packs/arm64/f2bea8d9e4334a69946e4fa493d31376/ivona_fra.fra.lea.jar",
+   "bytes": 5175182,
+   "version": "2025-03-19T12:20:35Z"
+  },
+  {
+   "key": "fra.fra.mathieu",
+   "name": "Mathieu",
+   "languages": [
+    "fr-FR"
+   ],
+   "kind": "classic",
+   "url": "https://s3.amazonaws.com/lss-tts-voices/ivona/753/packs/arm/javaspec/91307f945b4e5f551c2c0998741ed083/ivona_fra.fra.mathieu.jar",
+   "bytes": 132093478,
+   "version": "2017-04-18T15:41:17Z"
+  },
+  {
+   "key": "hin.ind.aditi",
+   "name": "Aditi",
+   "languages": [
+    "hi-IN"
+   ],
+   "kind": "classic",
+   "url": "https://s3.amazonaws.com/lss-tts-voices/ivona/2160/packs/arm64/javaspec/b3360c365b0d46108b8bda2873082486/ivona_hin.ind.aditi.jar",
+   "bytes": 393057333,
+   "version": "2019-09-18T09:01:43Z"
+  },
+  {
+   "key": "isl.isl.dora",
+   "name": "Dóra",
+   "languages": [
+    "is-IS"
+   ],
+   "kind": "classic",
+   "url": "https://s3.amazonaws.com/lss-tts-voices/ivona/753/packs/arm/javaspec/b03930a40c5662c86ae494c80e6d65a3/ivona_isl.isl.dora.jar",
+   "bytes": 171282774,
+   "version": "2017-04-18T15:41:17Z"
+  },
+  {
+   "key": "isl.isl.karl",
+   "name": "Karl",
+   "languages": [
+    "is-IS"
+   ],
+   "kind": "classic",
+   "url": "https://s3.amazonaws.com/lss-tts-voices/ivona/753/packs/arm/javaspec/23ec36eeb1312cf4ab9cc13fea53d03e/ivona_isl.isl.karl.jar",
+   "bytes": 233258317,
+   "version": "2017-04-18T15:41:17Z"
+  },
+  {
+   "key": "ita.ita.bianca",
+   "name": "Bianca",
+   "languages": [
+    "it-IT"
+   ],
+   "kind": "neural",
+   "url": "https://s3.amazonaws.com/lss-tts-voices/ivona/3586/packs/arm64/dacac6a51fba49b697df97f49ec9aa01/ivona_ita.ita.bianca.jar",
+   "bytes": 4548477,
+   "version": "2025-03-19T12:20:35Z"
+  },
+  {
+   "key": "ita.ita.carla",
+   "name": "Carla",
+   "languages": [
+    "it-IT"
+   ],
+   "kind": "classic",
+   "url": "https://s3.amazonaws.com/lss-tts-voices/ivona/766/packs/arm64/javaspec/37602809a1ac19205f7bc871df044672/ivona_ita.ita.carla.jar",
+   "bytes": 139497040,
+   "version": "2017-12-04T16:58:06Z"
+  },
+  {
+   "key": "ita.ita.giorgio",
+   "name": "Giorgio",
+   "languages": [
+    "it-IT"
+   ],
+   "kind": "classic",
+   "url": "https://s3.amazonaws.com/lss-tts-voices/ivona/753/packs/arm/javaspec/508a93b64afe48925d2576941bb32df8/ivona_ita.ita.giorgio.jar",
+   "bytes": 127923135,
+   "version": "2017-04-18T15:41:17Z"
+  },
+  {
+   "key": "jpn.jpn.mizuki",
+   "name": "Mizuki",
+   "languages": [
+    "ja-JP"
+   ],
+   "kind": "classic",
+   "url": "https://s3.amazonaws.com/lss-tts-voices/ivona/1647957100/packs/arm64/2bda80a0-89f5-4d91-b08e-46bb03e07860/ivona_jpn.jpn.mizuki.jar",
+   "bytes": 320799423,
+   "version": "2018-04-25T16:20:11Z"
+  },
+  {
+   "key": "jpn.jpn.tomoko",
+   "name": "Tomoko",
+   "languages": [
+    "ja-JP"
+   ],
+   "kind": "neural",
+   "url": "https://s3.amazonaws.com/lss-tts-voices/ivona/3586/packs/arm64/74bf4f5b2dd646878dbbbcc80c5c2907/ivona_jpn.jpn.tomoko.jar",
+   "bytes": 64692324,
+   "version": "2025-03-19T12:20:35Z"
+  },
+  {
+   "key": "nob.nor.liv",
+   "name": "Liv",
+   "languages": [
+    "nb-NO"
+   ],
+   "kind": "classic",
+   "url": "https://s3.amazonaws.com/lss-tts-voices/ivona/753/packs/arm/javaspec/90a19742cc39aee57f69d15dfe7b0eb3/ivona_nob.nor.liv.jar",
+   "bytes": 186652331,
+   "version": "2017-04-18T15:41:17Z"
+  },
+  {
+   "key": "nld.nld.laura",
+   "name": "Laura",
+   "languages": [
+    "nl-NL"
+   ],
+   "kind": "neural",
+   "url": "https://s3.amazonaws.com/lss-tts-voices/ivona/3586/packs/arm64/5a4cf13891b541d482a3e37a9635721e/ivona_nld.nld.laura.jar",
+   "bytes": 5799613,
+   "version": "2025-03-19T12:20:35Z"
+  },
+  {
+   "key": "nld.nld.lotte",
+   "name": "Lotte",
+   "languages": [
+    "nl-NL"
+   ],
+   "kind": "classic",
+   "url": "https://s3.amazonaws.com/lss-tts-voices/ivona/1646138916/packs/arm64/518c4d92-2f8f-455c-8f81-29a540ad77aa/ivona_nld.nld.lotte.jar",
+   "bytes": 181682749,
+   "version": "2021-04-27T15:45:15Z"
+  },
+  {
+   "key": "nld.nld.ruben",
+   "name": "Ruben",
+   "languages": [
+    "nl-NL"
+   ],
+   "kind": "classic",
+   "url": "https://s3.amazonaws.com/lss-tts-voices/ivona/753/packs/arm/javaspec/ff91ff9a1b820b5e6f7de7e464c53291/ivona_nld.nld.ruben.jar",
+   "bytes": 132354838,
+   "version": "2017-04-18T15:41:17Z"
+  },
+  {
+   "key": "pol.pol.agnieszka",
+   "name": "Agnieszka",
+   "languages": [
+    "pl-PL"
+   ],
+   "kind": "classic",
+   "url": "https://s3.amazonaws.com/lss-tts-voices/ivona/753/packs/arm/javaspec/260a0635f5dbd13dc290b653101e5c9b/ivona_pol.pol.agnieszka.jar",
+   "bytes": 150782418,
+   "version": "2017-04-18T15:41:17Z"
+  },
+  {
+   "key": "pol.pol.ewa",
+   "name": "Ewa",
+   "languages": [
+    "pl-PL"
+   ],
+   "kind": "classic",
+   "url": "https://s3.amazonaws.com/lss-tts-voices/ivona/1646138916/packs/arm64/88c48813-e7d6-449a-93eb-b5f3c080c5d6/ivona_pol.pol.ewa.jar",
+   "bytes": 171354783,
+   "version": "2021-05-06T17:37:50Z"
+  },
+  {
+   "key": "pol.pol.jacek",
+   "name": "Jacek",
+   "languages": [
+    "pl-PL"
+   ],
+   "kind": "classic",
+   "url": "https://s3.amazonaws.com/lss-tts-voices/ivona/753/packs/arm/javaspec/65f076587d5c93a58eed8ee7bf9ed0c0/ivona_pol.pol.jacek.jar",
+   "bytes": 29752578,
+   "version": "2017-04-18T15:41:17Z"
+  },
+  {
+   "key": "pol.pol.jan",
+   "name": "Jan",
+   "languages": [
+    "pl-PL"
+   ],
+   "kind": "classic",
+   "url": "https://s3.amazonaws.com/lss-tts-voices/ivona/753/packs/arm/javaspec/4cb7808888d5ca54fa75bc69147869b5/ivona_pol.pol.jan.jar",
+   "bytes": 30274509,
+   "version": "2017-04-18T15:41:17Z"
+  },
+  {
+   "key": "pol.pol.maja",
+   "name": "Maja",
+   "languages": [
+    "pl-PL"
+   ],
+   "kind": "classic",
+   "url": "https://s3.amazonaws.com/lss-tts-voices/ivona/753/packs/arm/javaspec/483ab4f366035db647fffc9136116195/ivona_pol.pol.maja.jar",
+   "bytes": 50174872,
+   "version": "2017-04-18T15:41:17Z"
+  },
+  {
+   "key": "pol.pol.ola",
+   "name": "Ola",
+   "languages": [
+    "pl-PL"
+   ],
+   "kind": "neural",
+   "url": "https://s3.amazonaws.com/lss-tts-voices/ivona/3586/packs/arm64/fdcf569b3d2f415d8468732210c28c11/ivona_pol.pol.ola.jar",
+   "bytes": 3446355,
+   "version": "2025-03-19T12:20:35Z"
+  },
+  {
+   "key": "por.bra.ricardo",
+   "name": "Ricardo",
+   "languages": [
+    "pt-BR"
+   ],
+   "kind": "classic",
+   "url": "https://s3.amazonaws.com/lss-tts-voices/ivona/753/packs/arm/javaspec/1153ae0e005dd9f68dd8548e36d231df/ivona_por.bra.ricardo.jar",
+   "bytes": 129082897,
+   "version": "2017-04-18T15:41:17Z"
+  },
+  {
+   "key": "por.bra.vitoria",
+   "name": "Vitória",
+   "languages": [
+    "pt-BR"
+   ],
+   "kind": "neural",
+   "url": "https://s3.amazonaws.com/lss-tts-voices/ivona/3586/packs/arm64/f1ff516c4933481c9e3778059c19b1fe/ivona_por.bra.vitoria.jar",
+   "bytes": 4588749,
+   "version": "2025-03-19T12:20:35Z"
+  },
+  {
+   "key": "por.prt.cristiano",
+   "name": "Cristiano",
+   "languages": [
+    "pt-PT"
+   ],
+   "kind": "classic",
+   "url": "https://s3.amazonaws.com/lss-tts-voices/ivona/753/packs/arm/javaspec/d78f3e567a115042ddd11582f6d238e8/ivona_por.prt.cristiano.jar",
+   "bytes": 157134124,
+   "version": "2017-04-18T15:41:17Z"
+  },
+  {
+   "key": "por.prt.ines",
+   "name": "Inês",
+   "languages": [
+    "pt-PT"
+   ],
+   "kind": "neural",
+   "url": "https://s3.amazonaws.com/lss-tts-voices/ivona/3586/packs/arm64/8cfb229812a842bcbd88f986acb60525/ivona_por.prt.ines.jar",
+   "bytes": 4096077,
+   "version": "2025-03-19T12:20:35Z"
+  },
+  {
+   "key": "ron.rou.carmen",
+   "name": "Carmen",
+   "languages": [
+    "ro-RO"
+   ],
+   "kind": "classic",
+   "url": "https://s3.amazonaws.com/lss-tts-voices/ivona/753/packs/arm/javaspec/884a2bf46edadea5a107b30c7a5aeca3/ivona_ron.rou.carmen.jar",
+   "bytes": 31359606,
+   "version": "2017-04-18T15:41:17Z"
+  },
+  {
+   "key": "rus.rus.maxim",
+   "name": "Maxim",
+   "languages": [
+    "ru-RU"
+   ],
+   "kind": "classic",
+   "url": "https://s3.amazonaws.com/lss-tts-voices/ivona/753/packs/arm/javaspec/a2520f2b6e9334f48f876577333b2234/ivona_rus.rus.maxim.jar",
+   "bytes": 186393770,
+   "version": "2017-04-18T15:41:17Z"
+  },
+  {
+   "key": "rus.rus.tatyana",
+   "name": "Tatyana",
+   "languages": [
+    "ru-RU"
+   ],
+   "kind": "classic",
+   "url": "https://s3.amazonaws.com/lss-tts-voices/ivona/753/packs/arm/javaspec/20e8ad762ab5af8f1bac595d14408475/ivona_rus.rus.tatyana.jar",
+   "bytes": 165503417,
+   "version": "2017-04-18T15:41:17Z"
+  },
+  {
+   "key": "swe.swe.astrid",
+   "name": "Astrid",
+   "languages": [
+    "sv-SE"
+   ],
+   "kind": "classic",
+   "url": "https://s3.amazonaws.com/lss-tts-voices/ivona/1646138916/packs/arm64/8cd7ba8f-34fb-4686-9c50-6aff4539b43f/ivona_swe.swe.astrid.jar",
+   "bytes": 222875318,
+   "version": "2021-04-27T15:45:15Z"
+  },
+  {
+   "key": "swe.swe.elin",
+   "name": "Elin",
+   "languages": [
+    "sv-SE"
+   ],
+   "kind": "neural",
+   "url": "https://s3.amazonaws.com/lss-tts-voices/ivona/3586/packs/arm64/b7ab08ababba4060a56794f52716584d/ivona_swe.swe.elin.jar",
+   "bytes": 6027833,
+   "version": "2025-03-19T12:20:35Z"
+  },
+  {
+   "key": "tur.tur.filiz",
+   "name": "Filiz",
+   "languages": [
+    "tr-TR"
+   ],
+   "kind": "classic",
+   "url": "https://s3.amazonaws.com/lss-tts-voices/ivona/753/packs/arm/javaspec/25c12956a3dce766a0b9cfd8987a195a/ivona_tur.tur.filiz.jar",
+   "bytes": 165740295,
+   "version": "2017-04-18T15:41:17Z"
+  }
+ ]
+}

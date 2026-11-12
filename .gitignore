@@ -1,0 +1,9 @@
+work/
+build/
+.gradle/
+local.properties
+*.apk
+/result*
+android/app/build/
+android/build/
+android/.gradle/
