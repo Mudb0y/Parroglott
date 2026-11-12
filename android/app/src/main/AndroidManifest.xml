@@ -21,6 +21,21 @@
                 android:resource="@xml/tts_engine" />
         </service>
 
+        <!-- Amazon's engine holds one voice per process; three processes keep
+             three voices ready, and a crash in one leaves the rest. -->
+        <service
+            android:name=".EngineHost$H0"
+            android:exported="false"
+            android:process=":engine0" />
+        <service
+            android:name=".EngineHost$H1"
+            android:exported="false"
+            android:process=":engine1" />
+        <service
+            android:name=".EngineHost$H2"
+            android:exported="false"
+            android:process=":engine2" />
+
         <activity
             android:name=".CheckDataActivity"
             android:exported="true"

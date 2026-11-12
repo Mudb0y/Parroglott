@@ -9,7 +9,6 @@ import android.speech.tts.TextToSpeechService;
 import android.speech.tts.Voice;
 import android.util.Log;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -19,7 +18,7 @@ public class ParroglottTtsService extends TextToSpeechService {
     private static final String TAG = "Parroglott";
 
     private VoiceStore store;
-    private volatile Engine engine;
+    private EnginePool pool;
     private volatile boolean stopped;
     private volatile long stopAt;
     private volatile String[] currentLanguage = {"eng", "USA", ""};
@@ -27,13 +26,8 @@ public class ParroglottTtsService extends TextToSpeechService {
     @Override
     public void onCreate() {
         store = VoiceStore.get(this);
+        pool = EnginePool.get(this);
         super.onCreate();
-    }
-
-    private Engine engine() throws IOException {
-        Engine e = engine;
-        if (e == null) engine = e = Engine.get(this);
-        return e;
     }
 
     @Override
@@ -73,12 +67,7 @@ public class ParroglottTtsService extends TextToSpeechService {
     public int onLoadVoice(String name) {
         Object[] f = store.find(name);
         if (f == null) return TextToSpeech.ERROR;
-        try {
-            return engine().load((VoiceStore.Voice) f[0]) ? TextToSpeech.SUCCESS : TextToSpeech.ERROR;
-        } catch (IOException e) {
-            Log.w(TAG, "loading " + name, e);
-            return TextToSpeech.ERROR;
-        }
+        return pool.load((VoiceStore.Voice) f[0]) ? TextToSpeech.SUCCESS : TextToSpeech.ERROR;
     }
 
     @Override
@@ -93,8 +82,7 @@ public class ParroglottTtsService extends TextToSpeechService {
     protected void onStop() {
         stopAt = SystemClock.elapsedRealtime();
         stopped = true;
-        Engine e = engine;
-        if (e != null) e.stop();
+        pool.stop();
     }
 
     @Override
@@ -111,18 +99,9 @@ public class ParroglottTtsService extends TextToSpeechService {
             cb.error(TextToSpeech.ERROR_NOT_INSTALLED_YET);
             return;
         }
-        Engine e;
-        try {
-            e = engine();
-        } catch (IOException | UnsatisfiedLinkError ex) {
-            Log.e(TAG, "starting the engine", ex);
-            cb.error(TextToSpeech.ERROR_SYNTHESIS);
-            return;
-        }
-
         String text = request.getCharSequenceText().toString();
         stopped = false;
-        int r = e.speak(v, text, request.getSpeechRate(), request.getPitch(), new Engine.Sink() {
+        int r = pool.speak(v, text, request.getSpeechRate(), request.getPitch(), new EnginePool.Sink() {
             @Override
             public void start(int sampleRate) {
                 cb.start(sampleRate, AudioFormat.ENCODING_PCM_16BIT, 1);

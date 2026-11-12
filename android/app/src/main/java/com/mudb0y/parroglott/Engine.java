@@ -21,7 +21,10 @@ import java.util.TreeMap;
 
 import sonic.Sonic;
 
-/** Amazon's Ivona engine: one per process, one voice loaded at a time. Thread-safe. */
+/**
+ * Amazon's Ivona engine: one per process, one voice loaded at a time, so each
+ * engine process (EngineHost) has its own. Thread-safe.
+ */
 final class Engine {
     private static final String TAG = "Parroglott";
 
@@ -49,37 +52,25 @@ final class Engine {
 
     private static Engine instance;
 
-    static synchronized Engine get(Context context) throws IOException {
-        if (instance == null) instance = new Engine(context.getApplicationContext());
+    /** id names this process's working files, so engines in different processes keep apart. */
+    static synchronized Engine get(Context context, String id) throws IOException {
+        if (instance == null) instance = new Engine(context.getApplicationContext(), id);
         return instance;
-    }
-
-    /** After voices are installed or removed: the engine reads its list of them again. */
-    static void voicesChanged() {
-        Engine e;
-        synchronized (Engine.class) {
-            e = instance;
-        }
-        if (e == null) return;
-        try {
-            e.rescan();
-        } catch (IOException ex) {
-            Log.w(TAG, "rescanning voices", ex);
-        }
     }
 
     private final NativeIVONAEngineICS ivona = new NativeIVONAEngineICS();
     private final File runtime;
     private final byte[] buffer = new byte[16384];
-    private String loaded;
+    private volatile String loaded;
     private int sampleRate;
 
-    private Engine(Context app) throws IOException {
+    private Engine(Context app, String id) throws IOException {
         VoiceStore store = VoiceStore.get(app);
-        runtime = new File(app.getFilesDir(), "ivona");
+        // Short, because the engine's own paths into it must fit where Amazon's were.
+        runtime = new File(app.getFilesDir(), "e" + id);
         File own = new File(runtime, "com.ivona.tts.oem/files");
         if (!own.isDirectory() && !own.mkdirs()) throw new IOException("cannot create " + own);
-        System.load(library(app, store.root()).getPath());
+        System.load(library(app, id, store.root(), runtime).getPath());
         String dir = runtime.getPath() + "/";
         NativeIVONAEngine.setEnvRuntime(dir, dir);
         rescan();
@@ -165,6 +156,16 @@ final class Engine {
         return true;
     }
 
+    /** The loaded voice's key, or null; answers even while speaking. */
+    String loadedKey() {
+        return loaded;
+    }
+
+    /** The loaded voice's sample rate. */
+    synchronized int sampleRate() {
+        return sampleRate;
+    }
+
     /** Ends the current speak() early; safe from any thread. */
     void stop() {
         ivona.stop();
@@ -175,7 +176,7 @@ final class Engine {
      * app's storage instead of a Fire tablet's. The APK carries Amazon's file
      * unchanged; the copy that loads is rebuilt whenever it would differ.
      */
-    private static File library(Context app, File voices) throws IOException {
+    private static File library(Context app, String id, File voices, File runtime) throws IOException {
         byte[] lib;
         try (InputStream in = app.getAssets().open("engine/libttsivona.so")) {
             lib = VoiceStore.readBytes(in);
@@ -192,7 +193,7 @@ final class Engine {
             String old = cString(lib, at);
             replaceString(lib, old, v + old.substring(FIRE_VOICES.length()));
         }
-        String files = new File(app.getFilesDir(), "ivona").getPath() + "/";
+        String files = runtime.getPath() + "/";
         for (String[] f : FIRE_FILE_NAMES) {
             try {
                 replaceString(lib, FIRE_FILES + f[0], files + f[1]);
@@ -202,7 +203,7 @@ final class Engine {
             }
         }
 
-        File dir = new File(app.getCodeCacheDir(), "engine");
+        File dir = new File(app.getCodeCacheDir(), "engine" + id);
         File out = new File(dir, "libttsivona.so");
         if (out.isFile()) {
             try (InputStream in = new FileInputStream(out)) {

@@ -267,7 +267,7 @@ final class VoiceStore {
             jar.delete();
             deleteTree(tmp);
         }
-        Engine.voicesChanged();
+        EnginePool.voicesChanged();
     }
 
     void remove(Voice v) {
@@ -276,7 +276,7 @@ final class VoiceStore {
             new File(state, v.key).delete();
             deleteTree(new File(root, v.key));
         }
-        Engine.voicesChanged();
+        EnginePool.voicesChanged();
     }
 
     private static void download(Voice v, File dest, Progress progress) throws IOException {
