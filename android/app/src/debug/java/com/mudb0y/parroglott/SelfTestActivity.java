@@ -17,7 +17,8 @@ import java.io.IOException;
  *   adb shell am start -n com.mudb0y.parroglott/.SelfTestActivity \
  *       --es voice pl-PL-jacek --es text "Dzień dobry" --es out jacek.wav
  * The file lands in the app's external files directory; results go to logcat
- * under ParroglottTest. --ei rate N sets the speech rate, 100 being normal;
+ * under ParroglottTest. --ei rate N and --ei pitch N set speech rate and
+ * pitch, 100 being normal;
  * --ei stopafter MS stops speech that long after its first audio. --es lang TAG
  * asks for a language instead of a voice, the way screen readers do.
  * With --es download KEY (such as pol.pol.jacek) instead, it downloads and
@@ -81,6 +82,7 @@ public class SelfTestActivity extends Activity {
         String text = getIntent().getStringExtra("text");
         String out = getIntent().getStringExtra("out");
         int rate = getIntent().getIntExtra("rate", 100);
+        int pitch = getIntent().getIntExtra("pitch", 100);
         int stopAfter = getIntent().getIntExtra("stopafter", 0);
         if (text == null || out == null) {
             Log.e(TAG, "FAIL need text and out extras");
@@ -110,6 +112,7 @@ public class SelfTestActivity extends Activity {
                 Log.i(TAG, "language " + lang + ": " + r + ", voice " + (chosen == null ? null : chosen.getName()));
             }
             tts.setSpeechRate(rate / 100f);
+            tts.setPitch(pitch / 100f);
             tts.setOnUtteranceProgressListener(new UtteranceProgressListener() {
                 @Override
                 public void onStart(String id) {
