@@ -15,6 +15,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.LinkOption;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.TreeMap;
@@ -46,6 +48,9 @@ final class Engine {
      */
     private static final int ENGINE_MAX_RATE = 400;
 
+    /** What the engine's scan puts before a voice's engine name. */
+    private static final String PACKAGE = "com.ivona.tts.oem.voicebeta.";
+
     /** The libraries Amazon built the engine and voices against, in loading order. */
     private static final String[] RUNTIME = {"libc++_shared.so", "libtensorflowlite_c.so"};
 
@@ -62,43 +67,68 @@ final class Engine {
     }
 
     private final NativeIVONAEngineICS ivona = new NativeIVONAEngineICS();
+    private final VoiceStore store;
     private final File runtime;
+    /**
+     * Where the engine looks for voices. It only ever holds the voice about
+     * to load, so voices the engine knows by the same name, such as classic
+     * and neural Salli, never meet, and a broken voice is never quietly
+     * swapped for another. The voice is a real directory of links to its
+     * files, because the engine's scan passes over a linked directory.
+     */
+    private final File view;
     private final byte[] buffer = new byte[16384];
     private volatile String loaded;
+    /** The loaded voice's directory's modification time, which changes when it is installed again. */
+    private long loadedStamp;
+    /** The engine name of the voice the engine last took, even if Parroglott has since let it go. */
+    private String engineHolds;
     private int sampleRate;
 
     private Engine(Context app, String id) throws IOException {
-        VoiceStore store = VoiceStore.get(app);
+        store = VoiceStore.get(app);
         // Short, because the engine's own paths into it must fit where Amazon's were.
         runtime = new File(app.getFilesDir(), "e" + id);
+        view = new File(runtime, "v");
         File own = new File(runtime, "com.ivona.tts.oem/files");
         if (!own.isDirectory() && !own.mkdirs()) throw new IOException("cannot create " + own);
         // Loaded by path first, so that the engine and the voices it loads
         // find them already in place under their sonames.
         for (String name : RUNTIME) System.load(runtimeLibrary(app, name).getPath());
-        System.load(library(app, id, store.root(), runtime).getPath());
+        System.load(library(app, id, view, runtime).getPath());
         String dir = runtime.getPath() + "/";
         NativeIVONAEngine.setEnvRuntime(dir, dir);
-        rescan();
+        clear(view);
+        if (!view.mkdirs()) throw new IOException("cannot create " + view);
+        scan(null);
         ivona.create();
     }
 
     /**
-     * Writes the list of installed voices the engine reads, the way Amazon's
-     * own app does: one line per voice with an API version above zero,
-     * prefixed by its package name.
+     * Writes the list of voices the engine reads, the way Amazon's own app
+     * does: one line per voice it finds with an API version above zero and
+     * its voice data named, prefixed by its package name. Returns whether v
+     * was among them.
      */
-    synchronized void rescan() throws IOException {
+    private boolean scan(VoiceStore.Voice v) throws IOException {
+        // Both come back null when there are no voices.
         String[] found = IvonaPackagesInfo.getOEMpackages();
         String[] names = ConfigXMLDataSet.getPackagesCfg();
-        if (found == null || names == null || found.length != names.length)
+        if (found == null) found = new String[0];
+        if (names == null) names = new String[0];
+        if (found.length != names.length)
             throw new IOException("the engine's voice scan disagrees with itself");
+        String want = v == null ? null : PACKAGE + v.engine;
+        boolean seen = false;
         Map<String, String> rows = new TreeMap<>();
         for (int i = 0; i < found.length; i++) {
             String[] f = found[i] == null ? new String[0] : found[i].split(";");
             Log.i(TAG, "engine found " + names[i] + ": " + found[i]);
             try {
-                if (f.length >= 6 && Integer.parseInt(f[0]) > 0) rows.put(names[i], found[i]);
+                if (f.length >= 6 && Integer.parseInt(f[0]) > 0) {
+                    rows.put(names[i], found[i]);
+                    if (names[i].equals(want)) seen = true;
+                }
             } catch (NumberFormatException e) {
                 Log.w(TAG, "unreadable voice entry " + found[i]);
             }
@@ -110,20 +140,41 @@ final class Engine {
         try (OutputStream out = new FileOutputStream(list)) {
             out.write(csv.toString().getBytes(StandardCharsets.UTF_8));
         }
-        loaded = null;
+        return seen;
     }
 
     /** Makes a voice the engine's current one; false when the engine will not load it. */
     synchronized boolean load(VoiceStore.Voice v) {
-        if (v.key.equals(loaded)) return true;
+        long stamp = store.folder(v).lastModified();
+        if (v.key.equals(loaded) && stamp == loadedStamp) return true;
+        loaded = null;
+        try {
+            show(v);
+            if (!scan(v)) {
+                Log.w(TAG, "the engine does not find " + v.key + " whole");
+                return false;
+            }
+        } catch (IOException e) {
+            Log.w(TAG, "cannot show the engine " + v.key, e);
+            return false;
+        }
+        // The engine takes a request for the voice it has as already done,
+        // so another voice of the same name, or the same one installed
+        // again, needs a fresh engine.
+        if (v.engine.equals(engineHolds)) {
+            ivona.destroy();
+            ivona.create();
+            engineHolds = null;
+        }
         String[] n = v.engineName();
         int r = ivona.onLoadLanguage(n[0], n[1], n[2]);
         if (r < 0) {
             Log.w(TAG, "engine would not load " + v.key + ": " + r);
-            loaded = null;
             return false;
         }
         loaded = v.key;
+        loadedStamp = stamp;
+        engineHolds = v.engine;
         sampleRate = ivona.getSampleRate();
         Log.i(TAG, "loaded " + v.key + " at " + sampleRate + " Hz");
         return true;
@@ -169,6 +220,33 @@ final class Engine {
         for (int n; (n = sonic.readBytesFromStream(out, out.length)) > 0; )
             if (!sink.audio(out, n)) return false;
         return true;
+    }
+
+    /** Empties the view, then puts v in it under its engine name. */
+    private void show(VoiceStore.Voice v) throws IOException {
+        clear(view);
+        link(store.folder(v), new File(view, v.engine));
+    }
+
+    /** Recreates a tree as real directories holding links to its files. */
+    private static void link(File from, File to) throws IOException {
+        File[] kids = from.listFiles();
+        if (kids == null) throw new IOException("cannot list " + from);
+        if (!to.mkdirs()) throw new IOException("cannot create " + to);
+        for (File k : kids) {
+            File t = new File(to, k.getName());
+            if (k.isDirectory()) link(k, t);
+            else Files.createSymbolicLink(t.toPath(), k.toPath());
+        }
+    }
+
+    /** Deletes a tree without following its links, which lead into the voice store. */
+    private static void clear(File f) throws IOException {
+        if (Files.isDirectory(f.toPath(), LinkOption.NOFOLLOW_LINKS)) {
+            File[] kids = f.listFiles();
+            if (kids != null) for (File k : kids) clear(k);
+        }
+        Files.deleteIfExists(f.toPath());
     }
 
     /** The loaded voice's key, or null; answers even while speaking. */

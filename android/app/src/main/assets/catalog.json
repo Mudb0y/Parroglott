@@ -145,6 +145,18 @@
    "version": "2025-03-19T12:20:35Z"
   },
   {
+   "key": "eng.gbr.amy.classic",
+   "name": "Amy",
+   "languages": [
+    "en-GB"
+   ],
+   "kind": "classic",
+   "url": "https://s3.amazonaws.com/lss-tts-voices/ivona/3021/packs/arm64/javaspec/1f4e6caca90f44f0a79d8bfa89f49ebd/ivona_eng.gbr.amy.jar",
+   "bytes": 132236339,
+   "version": "2020-11-27T11:13:33Z",
+   "engine": "eng.gbr.amy"
+  },
+  {
    "key": "eng.gbr.brian",
    "name": "Brian",
    "languages": [
@@ -189,6 +201,20 @@
    "version": "2019-10-14T09:48:35Z"
   },
   {
+   "key": "eng.usa.joanna",
+   "name": "Joanna",
+   "languages": [
+    "en-US"
+   ],
+   "kind": "neural",
+   "url": "https://s3.amazonaws.com/lss-tts-voices/ivona/3586/packs/arm64/edc4fbf480d84854b05c4b6a3c8c7d9f/ivona_eng.usa.salli.jar",
+   "bytes": 7649895,
+   "version": "2025-03-19T12:20:35Z with Kindle 5.20.1",
+   "engine": "eng.usa.joana",
+   "base": "eng.usa.salli",
+   "overlay": "voices/eng.usa.joanna"
+  },
+  {
    "key": "eng.usa.joey",
    "name": "Joey",
    "languages": [
@@ -209,6 +235,18 @@
    "url": "https://s3.amazonaws.com/lss-tts-voices/ivona/3586/packs/arm64/edc4fbf480d84854b05c4b6a3c8c7d9f/ivona_eng.usa.salli.jar",
    "bytes": 7649895,
    "version": "2025-03-19T12:20:35Z"
+  },
+  {
+   "key": "eng.usa.salli.classic",
+   "name": "Salli",
+   "languages": [
+    "en-US"
+   ],
+   "kind": "classic",
+   "url": "https://s3.amazonaws.com/lss-tts-voices/ivona/3021/packs/arm64/javaspec/282df09814bb43afb8704a7ee5ddc5c7/ivona_eng.usa.salli.jar",
+   "bytes": 97914185,
+   "version": "2020-11-27T11:13:33Z",
+   "engine": "eng.usa.salli"
   },
   {
    "key": "spa.esp.conchita",
@@ -574,6 +612,18 @@
    "version": "2025-03-19T12:20:35Z"
   },
   {
+   "key": "por.bra.vitoria.classic",
+   "name": "Vitória",
+   "languages": [
+    "pt-BR"
+   ],
+   "kind": "classic",
+   "url": "https://s3.amazonaws.com/lss-tts-voices/ivona/766/packs/arm64/javaspec/c0396d6dc66334960c0802295b683fab/ivona_por.bra.vitoria.jar",
+   "bytes": 139537893,
+   "version": "2017-12-04T16:58:07Z",
+   "engine": "por.bra.vitoria"
+  },
+  {
    "key": "por.prt.cristiano",
    "name": "Cristiano",
    "languages": [
@@ -594,6 +644,18 @@
    "url": "https://s3.amazonaws.com/lss-tts-voices/ivona/3586/packs/arm64/8cfb229812a842bcbd88f986acb60525/ivona_por.prt.ines.jar",
    "bytes": 4096077,
    "version": "2025-03-19T12:20:35Z"
+  },
+  {
+   "key": "por.prt.ines.classic",
+   "name": "Inês",
+   "languages": [
+    "pt-PT"
+   ],
+   "kind": "classic",
+   "url": "https://s3.amazonaws.com/lss-tts-voices/ivona/753/packs/arm/javaspec/944ef61aec2461dd7be2c778e993e99b/ivona_por.prt.ines.jar",
+   "bytes": 136389567,
+   "version": "2017-04-18T15:41:17Z",
+   "engine": "por.prt.ines"
   },
   {
    "key": "ron.rou.carmen",

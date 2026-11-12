@@ -80,17 +80,6 @@ public class EngineHost extends Service {
             Engine e = engine;
             if (e != null) e.stop();
         }
-
-        @Override
-        public void rescan() {
-            Engine e = engine;
-            if (e == null) return;
-            try {
-                e.rescan();
-            } catch (IOException ex) {
-                Log.w(TAG, "rescanning voices", ex);
-            }
-        }
     };
 
     private void run(String key, String text, int rate, int pitch, ParcelFileDescriptor fd) {

@@ -2,6 +2,7 @@ package com.mudb0y.parroglott;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.content.res.AssetManager;
 import android.speech.tts.TextToSpeech;
 
 import org.json.JSONArray;
@@ -11,6 +12,7 @@ import org.json.JSONObject;
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -35,10 +37,22 @@ import java.util.zip.ZipFile;
 /** What voices Amazon offers, which are installed, and how Android locales map onto them. */
 final class VoiceStore {
 
-    /** One voice pack from Amazon's catalogue. */
+    /** One voice in the app's catalogue. */
     static final class Voice {
-        /** pol.pol.jacek: ISO 639-2 language, ISO 3166 alpha-3 country, name, as the engine names it. */
+        /**
+         * pol.pol.jacek, or eng.usa.salli.classic for an older voice that
+         * shares its name with a newer one; also its directory's name.
+         */
         final String key;
+        /** ISO 639-2 language, ISO 3166 alpha-3 country and name, as the engine knows the voice. */
+        final String engine;
+        /**
+         * For a voice built on the phone: the voice whose pack downloads, and
+         * the APK asset directory holding what this voice puts in its place.
+         */
+        final String base, overlay;
+        /** One of two voices with the same name, told apart by its key's last part. */
+        final boolean variant;
         final String name;
         /** BCP 47 tags; a few voices serve more than one country. */
         final List<String> languages;
@@ -49,6 +63,10 @@ final class VoiceStore {
 
         Voice(JSONObject o) throws JSONException {
             key = o.getString("key");
+            engine = o.optString("engine", key);
+            base = o.optString("base", null);
+            overlay = o.optString("overlay", null);
+            variant = key.split("\\.").length > 3;
             name = o.getString("name");
             JSONArray l = o.getJSONArray("languages");
             List<String> tags = new ArrayList<>();
@@ -62,11 +80,20 @@ final class VoiceStore {
 
         /** The name Android knows this voice by in one of its languages, such as pl-PL-jacek. */
         String id(String language) {
-            return language + "-" + key.substring(key.lastIndexOf('.') + 1);
+            String[] k = key.split("\\.");
+            StringBuilder b = new StringBuilder(language);
+            for (int i = 2; i < k.length; i++) b.append('-').append(k[i]);
+            return b.toString();
         }
 
         String[] engineName() {
-            return key.split("\\.");
+            return engine.split("\\.");
+        }
+
+        /** The name people hear, with what tells it apart from a voice of the same name. */
+        String title(Context c) {
+            return variant ? c.getString(R.string.voice_variant, name,
+                    c.getString(neural ? R.string.kind_neural : R.string.kind_classic)) : name;
         }
 
         int megabytes() {
@@ -105,6 +132,7 @@ final class VoiceStore {
 
     private final File root;
     private final File state;
+    private final AssetManager assets;
     private final List<Voice> catalog = new ArrayList<>();
     private final SharedPreferences defaults;
 
@@ -116,7 +144,8 @@ final class VoiceStore {
         //noinspection ResultOfMethodCallIgnored
         state.mkdirs();
         defaults = app.getSharedPreferences("defaults", Context.MODE_PRIVATE);
-        try (InputStream in = app.getAssets().open("catalog.json")) {
+        assets = app.getAssets();
+        try (InputStream in = assets.open("catalog.json")) {
             JSONArray a = new JSONObject(readAll(in)).getJSONArray("voices");
             for (int i = 0; i < a.length(); i++) catalog.add(new Voice(a.getJSONObject(i)));
         } catch (IOException | JSONException e) {
@@ -124,9 +153,9 @@ final class VoiceStore {
         }
     }
 
-    /** The directory the engine scans; each installed voice is a directory named by its key. */
-    File root() {
-        return root;
+    /** Where an installed voice's files are. */
+    File folder(Voice v) {
+        return new File(root, v.key);
     }
 
     List<Voice> catalog() {
@@ -271,6 +300,7 @@ final class VoiceStore {
         try {
             deleteTree(tmp);
             unpack(jar, tmp);
+            if (v.base != null) adapt(v, tmp);
             synchronized (this) {
                 File dest = new File(root, v.key);
                 deleteTree(dest);
@@ -285,7 +315,66 @@ final class VoiceStore {
             jar.delete();
             deleteTree(tmp);
         }
-        EnginePool.voicesChanged();
+    }
+
+    /**
+     * Turns the unpacked pack of v's base voice into v: the base's own
+     * metadata gives way to v's from the APK, and the base's name in its
+     * identity library becomes v's, which the catalogue keeps the same length.
+     */
+    private void adapt(Voice v, File dir) throws IOException {
+        String from = v.base.substring(v.base.lastIndexOf('.') + 1);
+        String to = v.engine.substring(v.engine.lastIndexOf('.') + 1);
+        if (from.length() != to.length()) throw new IOException(v.key + " cannot take " + from + "'s place");
+        File[] files = dir.listFiles();
+        if (files == null) throw new IOException("cannot list " + dir);
+        for (File f : files)
+            if (f.isFile() && f.getName().contains("_" + from)) //noinspection ResultOfMethodCallIgnored
+                f.delete();
+
+        File lib = new File(dir, "libtiver.so");
+        byte[] b;
+        try (InputStream in = new FileInputStream(lib)) {
+            b = readBytes(in);
+        }
+        if (replaceAll(b, "_" + from, "_" + to) + replaceAll(b, "." + from, "." + to) == 0)
+            throw new IOException(lib + " does not name " + from);
+        //noinspection ResultOfMethodCallIgnored
+        lib.delete();
+        try (OutputStream out = new FileOutputStream(lib)) {
+            out.write(b);
+        }
+        //noinspection ResultOfMethodCallIgnored
+        lib.setReadOnly();
+
+        copyAssets(v.overlay, dir);
+    }
+
+    /** Replaces one string with another of the same length throughout b; returns how many. */
+    private static int replaceAll(byte[] b, String from, String to) {
+        byte[] f = from.getBytes(StandardCharsets.US_ASCII), t = to.getBytes(StandardCharsets.US_ASCII);
+        int n = 0;
+        outer:
+        for (int i = 0; i + f.length <= b.length; i++) {
+            for (int j = 0; j < f.length; j++)
+                if (b[i + j] != f[j]) continue outer;
+            System.arraycopy(t, 0, b, i, t.length);
+            n++;
+        }
+        return n;
+    }
+
+    private void copyAssets(String path, File dest) throws IOException {
+        String[] kids = assets.list(path);
+        if (kids == null || kids.length == 0) {
+            //noinspection ResultOfMethodCallIgnored
+            dest.getParentFile().mkdirs();
+            try (InputStream in = assets.open(path); OutputStream out = new FileOutputStream(dest)) {
+                out.write(readBytes(in));
+            }
+            return;
+        }
+        for (String k : kids) copyAssets(path + "/" + k, new File(dest, k));
     }
 
     void remove(Voice v) {
@@ -295,7 +384,6 @@ final class VoiceStore {
             deleteTree(new File(root, v.key));
         }
         settle(v.languages);
-        EnginePool.voicesChanged();
     }
 
     private static void download(Voice v, File dest, Progress progress) throws IOException {

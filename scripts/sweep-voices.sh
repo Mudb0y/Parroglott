@@ -31,7 +31,8 @@ for key in "${keys[@]}"; do
     had=$(adb shell run-as $pkg test -f files/installed/$key && echo yes || echo no)
     r=$(run --es download "$key")
     case $r in DONE*) ;; *) echo "sweep: $key: download: $r"; failed=1; continue ;; esac
-    id=$lang-${key##*.}
+    rest=${key#*.*.}
+    id=$lang-${rest//./-}
     r=$(run --es voice "$id" --es text "'$name. 1, 2, 3.'" --es out sweep.wav)
     words=$(adb logcat -d | grep -ac 'ParroglottTest: WORD' || true)
     adb pull "/sdcard/Android/data/$pkg/files/sweep.wav" "$out/$id.wav" > /dev/null 2>&1 || true

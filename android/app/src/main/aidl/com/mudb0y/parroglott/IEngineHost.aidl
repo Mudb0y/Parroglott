@@ -19,7 +19,4 @@ interface IEngineHost {
 
     /** Cuts short whatever is being spoken. */
     void stop();
-
-    /** Reads the installed voices again. */
-    void rescan();
 }

@@ -35,15 +35,6 @@ final class EnginePool {
         return instance;
     }
 
-    /** After voices are installed or removed: every engine reads its list of them again. */
-    static void voicesChanged() {
-        EnginePool p;
-        synchronized (EnginePool.class) {
-            p = instance;
-        }
-        if (p != null) p.rescan();
-    }
-
     private final class Slot implements ServiceConnection {
         final Class<?> cls;
         volatile IEngineHost host;
@@ -221,18 +212,6 @@ final class EnginePool {
             h.stop();
         } catch (RemoteException e) {
             Log.w(TAG, "stopping", e);
-        }
-    }
-
-    private void rescan() {
-        for (Slot s : slots) {
-            IEngineHost h = s.host;
-            if (h == null) continue;
-            try {
-                h.rescan();
-            } catch (RemoteException e) {
-                Log.w(TAG, "rescanning " + s.cls.getSimpleName(), e);
-            }
         }
     }
 }

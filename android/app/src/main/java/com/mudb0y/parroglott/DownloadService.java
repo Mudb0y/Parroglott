@@ -112,7 +112,7 @@ public class DownloadService extends Service {
     }
 
     static String label(android.content.Context c, VoiceStore.Voice v) {
-        return c.getString(R.string.voice_label, v.name,
+        return c.getString(R.string.voice_label, v.title(c),
                 Locale.forLanguageTag(v.languages.get(0)).getDisplayName());
     }
 

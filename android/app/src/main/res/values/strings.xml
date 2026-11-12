@@ -18,6 +18,7 @@
     <string name="action_remove">Remove download</string>
     <string name="confirm_remove">Remove %1$s?</string>
     <string name="voice_label">%1$s, %2$s</string>
+    <string name="voice_variant">%1$s, %2$s</string>
     <string name="channel_downloads">Downloads</string>
     <string name="notif_downloading">Downloading %1$s</string>
     <string name="notif_installing">Installing %1$s</string>

@@ -106,7 +106,7 @@ public class VoicesActivity extends Activity {
             VoiceStore.Voice def = store.best(lang);
             rows.add(def == null
                     ? getString(R.string.row_language, languageName(lang), ready, all.size())
-                    : getString(R.string.row_language_default, languageName(lang), ready, all.size(), def.name));
+                    : getString(R.string.row_language_default, languageName(lang), ready, all.size(), def.title(this)));
         }
         adapter.notifyDataSetChanged();
     }

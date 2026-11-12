@@ -65,6 +65,9 @@
             pkgs.whisper-cpp
             pkgs.sox
             pkgs.jq
+            # For reading Kindle updates: an ext3 system image holding a squashfs.
+            pkgs.e2fsprogs
+            pkgs.squashfsTools
           ];
 
           # android-tools brings its own Python; name the one with brotli outright.
