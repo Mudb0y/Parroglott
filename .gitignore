@@ -7,3 +7,4 @@ local.properties
 android/app/build/
 android/build/
 android/.gradle/
+android/app/.cxx/

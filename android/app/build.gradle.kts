@@ -14,6 +14,7 @@ android {
     namespace = "com.mudb0y.parroglott"
     compileSdk = 36
     buildToolsVersion = "35.0.0"
+    ndkVersion = "27.2.12479018"
 
     defaultConfig {
         applicationId = "com.mudb0y.parroglott"
@@ -23,15 +24,25 @@ android {
         versionName = System.getenv("PARROGLOTT_VERSION_NAME") ?: "0.1.0"
         // Amazon's engine and voices are arm64 code; nothing else can run them.
         ndk { abiFilters += "arm64-v8a" }
+        externalNativeBuild {
+            cmake {
+                // NDK r27 still links with 4 KB segment alignment unless asked.
+                arguments += "-DANDROID_SUPPORT_FLEXIBLE_PAGE_SIZES=ON"
+            }
+        }
     }
 
-    // What scripts/stage-android.sh takes from Amazon's firmware.
-    sourceSets["main"].jniLibs.srcDir("${rootDir}/../work/build/android/jniLibs")
+    // What scripts/stage-android.sh takes from Amazon's firmware. It travels
+    // as assets, loaded from app storage, because Android warns about any
+    // library in an APK that is not aligned for 16 KB pages, and Amazon's
+    // cannot be rebuilt.
     sourceSets["main"].assets.srcDir("${rootDir}/../work/build/android/assets")
 
-    // Amazon's libraries ship exactly as Amazon built them.
-    packaging {
-        jniLibs { keepDebugSymbols += "**/*.so" }
+    externalNativeBuild {
+        cmake {
+            path = file("src/main/cpp/CMakeLists.txt")
+            version = "3.22.1"
+        }
     }
 
     signingConfigs {

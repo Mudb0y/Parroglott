@@ -14,12 +14,16 @@
         };
       };
 
+      # Appletizer's NDK, so the Nix store already has it.
+      ndkVersion = "27.2.12479018";
       buildToolsVersion = "35.0.0";
       android = pkgs.androidenv.composeAndroidPackages {
         # 36 for the manifest's pageSizeCompat attribute.
         platformVersions = [ "36" ];
         buildToolsVersions = [ buildToolsVersion ];
-        includeNDK = false;
+        includeNDK = true;
+        ndkVersions = [ ndkVersion ];
+        cmakeVersions = [ "3.22.1" ];
         includeEmulator = false;
         includeSystemImages = false;
       };
@@ -67,6 +71,7 @@
           PG_PYTHON = "${python}/bin/python3";
           ANDROID_HOME = sdk;
           ANDROID_SDK_ROOT = sdk;
+          ANDROID_NDK_ROOT = "${sdk}/ndk/${ndkVersion}";
           JAVA_HOME = pkgs.jdk17.home;
           # AGP otherwise fetches an aapt2 from Maven that cannot run on NixOS.
           GRADLE_OPTS = "-Dorg.gradle.project.android.aapt2FromMavenOverride=${sdk}/build-tools/${buildToolsVersion}/aapt2";

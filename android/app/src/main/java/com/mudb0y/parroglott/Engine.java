@@ -46,6 +46,9 @@ final class Engine {
      */
     private static final int ENGINE_MAX_RATE = 400;
 
+    /** The libraries Amazon built the engine and voices against, in loading order. */
+    private static final String[] RUNTIME = {"libc++_shared.so", "libtensorflowlite_c.so"};
+
     interface Sink extends NativeIVONAEngineICS.Sink {
         void start(int sampleRate);
     }
@@ -70,6 +73,9 @@ final class Engine {
         runtime = new File(app.getFilesDir(), "e" + id);
         File own = new File(runtime, "com.ivona.tts.oem/files");
         if (!own.isDirectory() && !own.mkdirs()) throw new IOException("cannot create " + own);
+        // Loaded by path first, so that the engine and the voices it loads
+        // find them already in place under their sonames.
+        for (String name : RUNTIME) System.load(runtimeLibrary(app, name).getPath());
         System.load(library(app, id, store.root(), runtime).getPath());
         String dir = runtime.getPath() + "/";
         NativeIVONAEngine.setEnvRuntime(dir, dir);
@@ -220,6 +226,43 @@ final class Engine {
         // Android wants code it loads from app storage to be unwritable.
         if (!tmp.setReadOnly()) throw new IOException("cannot make " + tmp + " read-only");
         if (!tmp.renameTo(out)) throw new IOException("cannot move " + tmp + " to " + out);
+        return out;
+    }
+
+    /**
+     * One of Amazon's runtime libraries, copied out of the APK once per
+     * installed build. Engine processes may race to do it, so each writes
+     * its own temporary file and renames it into place.
+     */
+    private static File runtimeLibrary(Context app, String name) throws IOException {
+        File dir = new File(app.getCodeCacheDir(), "runtime");
+        File out = new File(dir, name);
+        File stamp = new File(dir, name + ".build");
+        String build;
+        try {
+            build = Long.toString(app.getPackageManager().getPackageInfo(app.getPackageName(), 0).lastUpdateTime);
+        } catch (android.content.pm.PackageManager.NameNotFoundException e) {
+            throw new IOException(e);
+        }
+        if (out.isFile() && stamp.isFile()) {
+            try (InputStream in = new FileInputStream(stamp)) {
+                if (VoiceStore.readAll(in).equals(build)) return out;
+            }
+        }
+        if (!dir.isDirectory() && !dir.mkdirs() && !dir.isDirectory()) throw new IOException("cannot create " + dir);
+        String pid = Integer.toString(android.os.Process.myPid());
+        File tmp = new File(dir, name + "." + pid);
+        try (InputStream in = app.getAssets().open("engine/" + name); OutputStream o = new FileOutputStream(tmp)) {
+            byte[] buf = new byte[1 << 16];
+            for (int n; (n = in.read(buf)) > 0; ) o.write(buf, 0, n);
+        }
+        if (!tmp.setReadOnly()) throw new IOException("cannot make " + tmp + " read-only");
+        if (!tmp.renameTo(out)) throw new IOException("cannot move " + tmp + " to " + out);
+        File stampTmp = new File(dir, name + ".build." + pid);
+        try (OutputStream o = new FileOutputStream(stampTmp)) {
+            o.write(build.getBytes(StandardCharsets.UTF_8));
+        }
+        if (!stampTmp.renameTo(stamp)) throw new IOException("cannot move " + stampTmp + " to " + stamp);
         return out;
     }
 
