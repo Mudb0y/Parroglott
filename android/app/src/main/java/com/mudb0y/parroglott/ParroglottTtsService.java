@@ -102,11 +102,18 @@ public class ParroglottTtsService extends TextToSpeechService {
             return;
         }
         String text = request.getCharSequenceText().toString();
+        int[] chars = charOffsets(text);
         stopped = false;
         int r = pool.speak(v, text, request.getSpeechRate(), request.getPitch(), new EnginePool.Sink() {
             @Override
             public void start(int sampleRate) {
                 cb.start(sampleRate, AudioFormat.ENCODING_PCM_16BIT, 1);
+            }
+
+            @Override
+            public void word(int start, int end, long sample) {
+                if (start < 0 || end >= chars.length || start >= end) return;
+                cb.rangeStart((int) sample, chars[start], chars[end]);
             }
 
             @Override
@@ -125,6 +132,27 @@ public class ParroglottTtsService extends TextToSpeechService {
         } else {
             cb.done();
         }
+    }
+
+    /**
+     * The engine counts word positions in bytes of the text as Android's JNI
+     * hands it over: UTF-8, but with NUL as two bytes and an unpaired
+     * surrogate as three. This maps each such byte to its UTF-16 index.
+     */
+    private static int[] charOffsets(String text) {
+        int bytes = 0;
+        for (int i = 0; i < text.length(); i += Character.charCount(text.codePointAt(i)))
+            bytes += utf8Length(text.codePointAt(i));
+        int[] map = new int[bytes + 1];
+        int b = 0;
+        for (int i = 0; i < text.length(); i += Character.charCount(text.codePointAt(i)))
+            for (int n = utf8Length(text.codePointAt(i)); n > 0; n--) map[b++] = i;
+        map[bytes] = text.length();
+        return map;
+    }
+
+    private static int utf8Length(int c) {
+        return c == 0 ? 2 : c < 0x80 ? 1 : c < 0x800 ? 2 : c < 0x10000 ? 3 : 4;
     }
 
     private static String[] iso3Triple(String tag) {

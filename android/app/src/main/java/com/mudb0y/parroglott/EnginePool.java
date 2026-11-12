@@ -116,6 +116,9 @@ final class EnginePool {
 
         /** Return false to stop. */
         boolean audio(byte[] pcm, int length);
+
+        /** A word, as offsets into the text, begins sample samples into the speech. */
+        void word(int start, int end, long sample);
     }
 
     private final Context app;
@@ -181,7 +184,12 @@ final class EnginePool {
             if (sampleRate <= 0) return -1;
             sink.start(sampleRate);
             byte[] buf = new byte[1 << 15];
-            for (int n; (n = in.readInt()) >= 0; ) {
+            for (int n; (n = in.readInt()) != -1; ) {
+                if (n == EngineHost.WORD) {
+                    int start = in.readInt(), end = in.readInt();
+                    sink.word(start, end, in.readLong());
+                    continue;
+                }
                 if (n > buf.length) buf = new byte[n];
                 in.readFully(buf, 0, n);
                 if (!sink.audio(buf, n)) {

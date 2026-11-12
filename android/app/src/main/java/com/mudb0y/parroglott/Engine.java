@@ -141,13 +141,22 @@ final class Engine {
         ivona.setProperty("pitch", Integer.toString(pitch));
         if (rate <= ENGINE_MAX_RATE) return ivona.speak(text, buffer, sink);
 
+        float speed = rate / (float) ENGINE_MAX_RATE;
         Sonic sonic = new Sonic(sampleRate, 1);
-        sonic.setSpeed(rate / (float) ENGINE_MAX_RATE);
+        sonic.setSpeed(speed);
         byte[] out = new byte[buffer.length * 2];
         boolean[] open = {true};
-        int r = ivona.speak(text, buffer, (pcm, length) -> {
-            sonic.writeBytesToStream(pcm, length);
-            return open[0] = drain(sonic, out, sink);
+        int r = ivona.speak(text, buffer, new NativeIVONAEngineICS.Sink() {
+            @Override
+            public boolean audio(byte[] pcm, int length) {
+                sonic.writeBytesToStream(pcm, length);
+                return open[0] = drain(sonic, out, sink);
+            }
+
+            @Override
+            public void word(int start, int end, long sample) {
+                sink.word(start, end, (long) (sample / speed));
+            }
         });
         if (r >= 0 && open[0]) {
             sonic.flushStream();

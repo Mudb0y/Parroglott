@@ -19,6 +19,8 @@ import java.util.concurrent.Executors;
  */
 public class EngineHost extends Service {
     private static final String TAG = "Parroglott";
+    /** In place of an audio length: a word's start and end offsets and its first sample follow. */
+    static final int WORD = -2;
 
     public static class H0 extends EngineHost {
     }
@@ -115,6 +117,18 @@ public class EngineHost extends Service {
                         started[0] = true;
                     } catch (IOException ignored) {
                         // The reader has gone; the first audio() notices.
+                    }
+                }
+
+                @Override
+                public void word(int start, int end, long sample) {
+                    try {
+                        out.writeInt(WORD);
+                        out.writeInt(start);
+                        out.writeInt(end);
+                        out.writeLong(sample);
+                    } catch (IOException ignored) {
+                        // The reader has gone; the next audio() notices.
                     }
                 }
 

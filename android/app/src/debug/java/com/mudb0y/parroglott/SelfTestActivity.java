@@ -113,6 +113,19 @@ public class SelfTestActivity extends Activity {
                 }
 
                 @Override
+                public void onRangeStart(String id, int start, int end, int frame) {
+                    // Android's file path hands these over as frame, start, end.
+                    if (!(start < end && end <= text.length())) {
+                        int f = start;
+                        start = end;
+                        end = frame;
+                        frame = f;
+                    }
+                    Log.i(TAG, "WORD " + start + "-" + end + " at frame " + frame + ": "
+                            + (start < end && end <= text.length() ? text.substring(start, end) : "?"));
+                }
+
+                @Override
                 public void onDone(String id) {
                     long now = SystemClock.elapsedRealtime();
                     Log.i(TAG, String.format("DONE %s first-audio %dms total %dms",
