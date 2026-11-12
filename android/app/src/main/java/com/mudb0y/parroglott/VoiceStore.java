@@ -160,16 +160,31 @@ final class VoiceStore {
     }
 
     void setDefault(String language, Voice v) {
-        defaults.edit().putString(language, v.key).apply();
+        defaults.edit().putString(language, v.key).commit();
     }
 
-    /** The voice a language speaks with when no voice is named: the one chosen in the app, else the first installed. */
+    /** The voice a language speaks with when no voice is named. */
     Voice best(String language) {
         Voice chosen = voice(defaults.getString(language, null));
         if (chosen != null && chosen.languages.contains(language) && installed(chosen)) return chosen;
         for (Voice v : installed())
             if (v.languages.contains(language)) return v;
         return null;
+    }
+
+    /**
+     * Writes down what best() answers for each of these languages, so that
+     * installing another voice later never changes what a screen reader
+     * speaks with; only the person choosing a voice does.
+     */
+    private void settle(List<String> languages) {
+        SharedPreferences.Editor e = defaults.edit();
+        for (String l : languages) {
+            Voice b = best(l);
+            if (b == null) e.remove(l);
+            else e.putString(l, b.key);
+        }
+        e.commit();
     }
 
     /**
@@ -247,6 +262,8 @@ final class VoiceStore {
      * part-way resumes next time; one that is cancelled throws Cancelled.
      */
     void install(Voice v, Progress progress) throws IOException {
+        // A language's first voice becomes its default; settle() keeps it so.
+        settle(v.languages);
         File jar = downloadFile(v);
         // Unpacked beside the voices, so the engine never scans half a voice.
         File tmp = new File(root.getParentFile(), "unpack-" + v.key);
@@ -262,6 +279,7 @@ final class VoiceStore {
                     out.write(v.version.getBytes(StandardCharsets.UTF_8));
                 }
             }
+            settle(v.languages);
         } finally {
             //noinspection ResultOfMethodCallIgnored
             jar.delete();
@@ -276,6 +294,7 @@ final class VoiceStore {
             new File(state, v.key).delete();
             deleteTree(new File(root, v.key));
         }
+        settle(v.languages);
         EnginePool.voicesChanged();
     }
 

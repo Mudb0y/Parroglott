@@ -1,4 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Parroglott</string>
+    <string name="kind_neural">neural</string>
+    <string name="kind_classic">classic</string>
+    <string name="row_language">%1$s. %2$d of %3$d voices ready.</string>
+    <string name="row_language_default">%1$s. %2$d of %3$d voices ready. Default %4$s.</string>
+    <string name="state_downloaded">downloaded</string>
+    <string name="state_available">%1$d megabytes to download</string>
+    <string name="state_downloading">downloading, %1$d percent</string>
+    <string name="state_installing">installing</string>
+    <string name="state_failed">download failed: %1$s</string>
+    <string name="state_default">default</string>
+    <string name="action_hear">Hear it</string>
+    <string name="action_default">Use it for %1$s</string>
+    <string name="action_download">Download, %1$d megabytes</string>
+    <string name="action_cancel_download">Cancel download</string>
+    <string name="action_remove">Remove download</string>
+    <string name="confirm_remove">Remove %1$s?</string>
+    <string name="voice_label">%1$s, %2$s</string>
+    <string name="channel_downloads">Downloads</string>
+    <string name="notif_downloading">Downloading %1$s</string>
+    <string name="notif_installing">Installing %1$s</string>
+    <string name="notif_installed">%1$s installed</string>
+    <string name="notif_failed">%1$s failed: %2$s</string>
 </resources>

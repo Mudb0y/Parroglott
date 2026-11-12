@@ -18,7 +18,8 @@ import java.io.IOException;
  *       --es voice pl-PL-jacek --es text "Dzień dobry" --es out jacek.wav
  * The file lands in the app's external files directory; results go to logcat
  * under ParroglottTest. --ei rate N sets the speech rate, 100 being normal;
- * --ei stopafter MS stops speech that long after its first audio.
+ * --ei stopafter MS stops speech that long after its first audio. --es lang TAG
+ * asks for a language instead of a voice, the way screen readers do.
  * With --es download KEY (such as pol.pol.jacek) instead, it downloads and
  * installs that voice from Amazon and reports when it is in place.
  */
@@ -36,6 +37,7 @@ public class SelfTestActivity extends Activity {
             return;
         }
         String voice = getIntent().getStringExtra("voice");
+        String lang = getIntent().getStringExtra("lang");
         String text = getIntent().getStringExtra("text");
         String out = getIntent().getStringExtra("out");
         int rate = getIntent().getIntExtra("rate", 100);
@@ -61,6 +63,11 @@ public class SelfTestActivity extends Activity {
                     return;
                 }
                 tts.setVoice(found);
+            }
+            if (lang != null) {
+                int r = tts.setLanguage(java.util.Locale.forLanguageTag(lang));
+                Voice chosen = tts.getVoice();
+                Log.i(TAG, "language " + lang + ": " + r + ", voice " + (chosen == null ? null : chosen.getName()));
             }
             tts.setSpeechRate(rate / 100f);
             tts.setOnUtteranceProgressListener(new UtteranceProgressListener() {
