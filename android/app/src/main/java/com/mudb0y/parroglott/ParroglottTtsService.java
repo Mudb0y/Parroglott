@@ -1,6 +1,7 @@
 package com.mudb0y.parroglott;
 
 import android.media.AudioFormat;
+import android.os.SystemClock;
 import android.speech.tts.SynthesisCallback;
 import android.speech.tts.SynthesisRequest;
 import android.speech.tts.TextToSpeech;
@@ -20,6 +21,7 @@ public class ParroglottTtsService extends TextToSpeechService {
     private VoiceStore store;
     private volatile Engine engine;
     private volatile boolean stopped;
+    private volatile long stopAt;
     private volatile String[] currentLanguage = {"eng", "USA", ""};
 
     @Override
@@ -89,6 +91,7 @@ public class ParroglottTtsService extends TextToSpeechService {
 
     @Override
     protected void onStop() {
+        stopAt = SystemClock.elapsedRealtime();
         stopped = true;
         Engine e = engine;
         if (e != null) e.stop();
@@ -134,6 +137,7 @@ public class ParroglottTtsService extends TextToSpeechService {
                 return true;
             }
         });
+        if (stopped) Log.i(TAG, "stopped in " + (SystemClock.elapsedRealtime() - stopAt) + "ms");
         if (r < 0 && !stopped) {
             Log.w(TAG, "synthesis failed: " + r);
             cb.error(TextToSpeech.ERROR_SYNTHESIS);

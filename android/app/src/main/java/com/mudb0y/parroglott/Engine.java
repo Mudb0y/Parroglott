@@ -19,6 +19,8 @@ import java.util.Arrays;
 import java.util.Map;
 import java.util.TreeMap;
 
+import sonic.Sonic;
+
 /** Amazon's Ivona engine: one per process, one voice loaded at a time. Thread-safe. */
 final class Engine {
     private static final String TAG = "Parroglott";
@@ -34,6 +36,12 @@ final class Engine {
             {"TURN_OFF_VOICE_EXTENSION", "nx"},
             {"current_voice_extension.txt", "cvx"},
     };
+
+    /**
+     * Above this, on Android's scale where 100 is normal, the engine barely
+     * speeds up (Salli flattens out near 2.8 times), so Sonic does the rest.
+     */
+    private static final int ENGINE_MAX_RATE = 400;
 
     interface Sink extends NativeIVONAEngineICS.Sink {
         void start(int sampleRate);
@@ -132,9 +140,29 @@ final class Engine {
     synchronized int speak(VoiceStore.Voice v, String text, int rate, int pitch, Sink sink) {
         if (!load(v)) return -1;
         sink.start(sampleRate);
-        ivona.setProperty("rate", Integer.toString(rate));
+        ivona.setProperty("rate", Integer.toString(Math.min(rate, ENGINE_MAX_RATE)));
         ivona.setProperty("pitch", Integer.toString(pitch));
-        return ivona.speak(text, buffer, sink);
+        if (rate <= ENGINE_MAX_RATE) return ivona.speak(text, buffer, sink);
+
+        Sonic sonic = new Sonic(sampleRate, 1);
+        sonic.setSpeed(rate / (float) ENGINE_MAX_RATE);
+        byte[] out = new byte[buffer.length * 2];
+        boolean[] open = {true};
+        int r = ivona.speak(text, buffer, (pcm, length) -> {
+            sonic.writeBytesToStream(pcm, length);
+            return open[0] = drain(sonic, out, sink);
+        });
+        if (r >= 0 && open[0]) {
+            sonic.flushStream();
+            drain(sonic, out, sink);
+        }
+        return r;
+    }
+
+    private static boolean drain(Sonic sonic, byte[] out, Sink sink) {
+        for (int n; (n = sonic.readBytesFromStream(out, out.length)) > 0; )
+            if (!sink.audio(out, n)) return false;
+        return true;
     }
 
     /** Ends the current speak() early; safe from any thread. */

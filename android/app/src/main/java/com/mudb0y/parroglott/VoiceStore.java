@@ -225,13 +225,33 @@ final class VoiceStore {
         }
     }
 
-    /** Downloads a voice from Amazon, checks every file against the pack's own manifest, and puts it where the engine looks. */
+    static final class Cancelled extends IOException {
+        Cancelled() {
+            super("cancelled");
+        }
+    }
+
+    private File downloadFile(Voice v) {
+        return new File(root.getParentFile(), "download-" + v.key + ".jar");
+    }
+
+    /** Throws away a partial download, which install() otherwise resumes. */
+    void discardDownload(Voice v) {
+        //noinspection ResultOfMethodCallIgnored
+        downloadFile(v).delete();
+    }
+
+    /**
+     * Downloads a voice from Amazon, checks every file against the pack's own
+     * manifest, and puts it where the engine looks. A download that fails
+     * part-way resumes next time; one that is cancelled throws Cancelled.
+     */
     void install(Voice v, Progress progress) throws IOException {
-        File jar = new File(root.getParentFile(), "download-" + v.key + ".jar");
+        File jar = downloadFile(v);
         // Unpacked beside the voices, so the engine never scans half a voice.
         File tmp = new File(root.getParentFile(), "unpack-" + v.key);
+        download(v, jar, progress);
         try {
-            download(v, jar, progress);
             deleteTree(tmp);
             unpack(jar, tmp);
             synchronized (this) {
@@ -260,21 +280,35 @@ final class VoiceStore {
     }
 
     private static void download(Voice v, File dest, Progress progress) throws IOException {
+        long have = dest.isFile() ? dest.length() : 0;
+        if (have > v.bytes) {
+            //noinspection ResultOfMethodCallIgnored
+            dest.delete();
+            have = 0;
+        }
+        if (have == v.bytes) return;
         HttpURLConnection c = (HttpURLConnection) new URL(v.url).openConnection();
         c.setConnectTimeout(30000);
         c.setReadTimeout(60000);
+        if (have > 0) c.setRequestProperty("Range", "bytes=" + have + "-");
         try {
-            if (c.getResponseCode() != 200) throw new IOException("Amazon answered " + c.getResponseCode());
-            long done = 0;
+            int code = c.getResponseCode();
+            boolean append = code == HttpURLConnection.HTTP_PARTIAL;
+            if (code != HttpURLConnection.HTTP_OK && !append) throw new IOException("Amazon answered " + code);
+            if (!append) have = 0;
             byte[] buf = new byte[1 << 16];
-            try (InputStream in = c.getInputStream(); OutputStream out = new FileOutputStream(dest)) {
+            try (InputStream in = c.getInputStream(); OutputStream out = new FileOutputStream(dest, append)) {
                 for (int n; (n = in.read(buf)) > 0; ) {
                     out.write(buf, 0, n);
-                    done += n;
-                    if (progress != null && !progress.update(done, v.bytes)) throw new IOException("cancelled");
+                    have += n;
+                    if (progress != null && !progress.update(have, v.bytes)) {
+                        //noinspection ResultOfMethodCallIgnored
+                        dest.delete();
+                        throw new Cancelled();
+                    }
                 }
             }
-            if (done != v.bytes) throw new IOException("got " + done + " bytes of " + v.bytes);
+            if (have != v.bytes) throw new IOException("the download ended early");
         } finally {
             c.disconnect();
         }
