@@ -53,6 +53,8 @@ final class VoiceStore {
         final String base, overlay;
         /** One of two voices with the same name, told apart by its key's last part. */
         final boolean variant;
+        /** Built from a desktop IVONA voice's data file rather than downloaded. */
+        final boolean imported;
         final String name;
         /** BCP 47 tags; a few voices serve more than one country. */
         final List<String> languages;
@@ -67,6 +69,7 @@ final class VoiceStore {
             base = o.optString("base", null);
             overlay = o.optString("overlay", null);
             variant = key.split("\\.").length > 3;
+            imported = o.optBoolean("imported");
             name = o.getString("name");
             JSONArray l = o.getJSONArray("languages");
             List<String> tags = new ArrayList<>();
@@ -131,9 +134,15 @@ final class VoiceStore {
     }
 
     private final File root;
+    /**
+     * One file per installed voice, holding its version; for an imported
+     * voice, its whole catalogue entry.
+     */
     private final File state;
     private final AssetManager assets;
-    private final List<Voice> catalog = new ArrayList<>();
+    private final List<Voice> amazon = new ArrayList<>();
+    /** Amazon's voices, then those imported; replaced whole when imports change. */
+    private volatile List<Voice> catalog;
     private final SharedPreferences defaults;
 
     private VoiceStore(Context app) {
@@ -147,10 +156,39 @@ final class VoiceStore {
         assets = app.getAssets();
         try (InputStream in = assets.open("catalog.json")) {
             JSONArray a = new JSONObject(readAll(in)).getJSONArray("voices");
-            for (int i = 0; i < a.length(); i++) catalog.add(new Voice(a.getJSONObject(i)));
+            for (int i = 0; i < a.length(); i++) amazon.add(new Voice(a.getJSONObject(i)));
         } catch (IOException | JSONException e) {
             throw new IllegalStateException("APK assets are incomplete", e);
         }
+        readImported();
+    }
+
+    /**
+     * Reads the imported voices' entries, which other processes may have
+     * added. An entry whose files are gone goes too: there is nothing to
+     * download it from.
+     */
+    private synchronized void readImported() {
+        List<Voice> imported = new ArrayList<>();
+        File[] marks = state.listFiles();
+        if (marks != null) {
+            for (File f : marks) {
+                try (InputStream in = new FileInputStream(f)) {
+                    String text = readAll(in);
+                    if (!text.startsWith("{")) continue;
+                    Voice v = new Voice(new JSONObject(text));
+                    if (new File(root, v.key).isDirectory()) imported.add(v);
+                    else //noinspection ResultOfMethodCallIgnored
+                        f.delete();
+                } catch (IOException | JSONException e) {
+                    android.util.Log.w("Parroglott", "unreadable voice entry " + f, e);
+                }
+            }
+        }
+        imported.sort((a, b) -> a.name.compareTo(b.name));
+        List<Voice> all = new ArrayList<>(amazon);
+        all.addAll(imported);
+        catalog = Collections.unmodifiableList(all);
     }
 
     /** Where an installed voice's files are. */
@@ -158,11 +196,16 @@ final class VoiceStore {
         return new File(root, v.key);
     }
 
+    /** Amazon's voices, then the imported ones. */
     List<Voice> catalog() {
-        return Collections.unmodifiableList(catalog);
+        return catalog;
     }
 
     Voice voice(String key) {
+        if (key == null) return null;
+        for (Voice v : catalog)
+            if (v.key.equals(key)) return v;
+        readImported();
         for (Voice v : catalog)
             if (v.key.equals(key)) return v;
         return null;
@@ -377,11 +420,33 @@ final class VoiceStore {
         for (String k : kids) copyAssets(path + "/" + k, new File(dest, k));
     }
 
+    /**
+     * Installs an imported voice whose files are ready in dir, under the
+     * catalogue entry o; replaces an earlier import of the same voice.
+     */
+    Voice addImported(JSONObject o, File dir) throws IOException, JSONException {
+        Voice v = new Voice(o);
+        // As with a download: a language's first voice becomes its default, and only that.
+        settle(v.languages);
+        synchronized (this) {
+            File dest = new File(root, v.key);
+            deleteTree(dest);
+            if (!dir.renameTo(dest)) throw new IOException("cannot move " + dir + " to " + dest);
+            try (OutputStream out = new FileOutputStream(new File(state, v.key))) {
+                out.write(o.toString().getBytes(StandardCharsets.UTF_8));
+            }
+            readImported();
+        }
+        settle(v.languages);
+        return voice(v.key);
+    }
+
     void remove(Voice v) {
         synchronized (this) {
             //noinspection ResultOfMethodCallIgnored
             new File(state, v.key).delete();
             deleteTree(new File(root, v.key));
+            if (v.imported) readImported();
         }
         settle(v.languages);
     }
@@ -466,7 +531,7 @@ final class VoiceStore {
     }
 
     /** Each named file's digest algorithm and Base64 value, from a JAR manifest. */
-    private static Map<String, String[]> manifestDigests(InputStream in) throws IOException {
+    static Map<String, String[]> manifestDigests(InputStream in) throws IOException {
         BufferedReader r = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8));
         List<String> lines = new ArrayList<>();
         for (String line; (line = r.readLine()) != null; ) {

@@ -47,6 +47,16 @@ Neural voices are marked as such in the app; everything else is a classic Ivona 
 * Turkish: Filiz
 * Welsh: Geraint, Gwyneth
 
+## Importing voices from data files
+
+Parroglott can also speak with IVONA desktop voices you already own, such as the SAPI5 voices IVONA sold until 2015 or the ones Harpo sells today. That adds Kendra, Kimberly, Ivy, Justin, Eric, Jennifer and Chipmunk in American English, and Emma in British English.
+
+* Find the voice's data file in its Windows installation: the large file, around 150 MB, named like vox_en_us_kendra22i, in the voice's vox folder.
+* Copy it to your phone.
+* In Parroglott, choose Import voice from data file, pick the file and confirm.
+
+A desktop voice's code is for Windows, so Parroglott borrows the code of an Amazon voice of the same language and generation, Joey for American English and Brian for British English, and downloads just those parts of it from Amazon. That code was made for Joey and Brian, so an imported voice's intonation can differ a little from the desktop version. Before it finishes, Parroglott has the engine load the new voice, and takes it out again if the engine can't use it.
+
 ## Good to know
 
 * It needs a 64-bit ARM phone, which is anything from the last several years.

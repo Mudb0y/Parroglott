@@ -7,6 +7,7 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
 import android.content.pm.ServiceInfo;
+import android.net.Uri;
 import android.os.Build;
 import android.os.IBinder;
 import android.util.Log;
@@ -21,10 +22,12 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 
-/** Fetches voices from Amazon, one at a time, while showing progress. */
+/** Fetches voices from Amazon and imports data files, one at a time, while showing progress. */
 public class DownloadService extends Service {
     static final String EXTRA_VOICE = "voice";
     static final String ACTION_CANCEL = "com.mudb0y.parroglott.CANCEL";
+    /** Imports the voice data file the intent's data names. */
+    static final String ACTION_IMPORT = "com.mudb0y.parroglott.IMPORT";
     private static final String CHANNEL = "downloads";
     private static final int ONGOING_ID = 1;
     private static final String TAG = "Parroglott";
@@ -79,6 +82,13 @@ public class DownloadService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        if (intent != null && ACTION_IMPORT.equals(intent.getAction()) && intent.getData() != null) {
+            Uri uri = intent.getData();
+            pending.incrementAndGet();
+            foreground(progress(getString(R.string.row_import), -1));
+            worker.submit(() -> runImport(uri));
+            return START_NOT_STICKY;
+        }
         String key = intent == null ? null : intent.getStringExtra(EXTRA_VOICE);
         VoiceStore.Voice v = key == null ? null : store.voice(key);
         if (v == null) {
@@ -96,13 +106,40 @@ public class DownloadService extends Service {
         states.put(key, new State());
         changed();
         pending.incrementAndGet();
-        Notification n = progress(getString(R.string.notif_downloading, label(v)), 0);
+        foreground(progress(getString(R.string.notif_downloading, label(v)), 0));
+        worker.submit(() -> run(v));
+        return START_NOT_STICKY;
+    }
+
+    private void foreground(Notification n) {
         if (Build.VERSION.SDK_INT >= 29)
             startForeground(ONGOING_ID, n, ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC);
         else
             startForeground(ONGOING_ID, n);
-        worker.submit(() -> run(v));
-        return START_NOT_STICKY;
+    }
+
+    private void runImport(Uri uri) {
+        try {
+            Importer.Plan p = Importer.inspect(this, uri);
+            String label = getString(R.string.voice_label, p.name,
+                    Locale.forLanguageTag(p.language()).getDisplayName());
+            int[] shown = {-1};
+            Importer.run(this, p, uri, pct -> {
+                if (pct / 5 == shown[0]) return;
+                shown[0] = pct / 5;
+                nm.notify(ONGOING_ID, progress(getString(R.string.notif_importing, label), pct));
+            });
+            finished(getString(R.string.notif_imported, label));
+        } catch (Exception e) {
+            Log.w(TAG, "importing " + uri, e);
+            finished(getString(R.string.notif_import_failed, e.getMessage()));
+        } finally {
+            changed();
+            if (pending.decrementAndGet() == 0) {
+                stopForeground(STOP_FOREGROUND_REMOVE);
+                stopSelf();
+            }
+        }
     }
 
     @Override

@@ -1,6 +1,7 @@
 package com.mudb0y.parroglott;
 
 import android.app.Activity;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.speech.tts.TextToSpeech;
@@ -23,7 +24,9 @@ import java.io.IOException;
  * asks for a language instead of a voice, the way screen readers do.
  * With --es download KEY (such as pol.pol.jacek) instead, it downloads and
  * installs that voice from Amazon and reports when it is in place; --es
- * remove KEY deletes it again. With
+ * remove KEY deletes it again; --es import PATH imports the voice data file
+ * at PATH, which must be readable by the app, such as in its external files
+ * directory. With
  * --es update-base URL, the updater reads URL/stable/update.json and
  * URL/dev/update.json instead of GitHub; an empty URL undoes it. With
  * --es crash java the process dies, for testing crash reports, and
@@ -70,6 +73,23 @@ public class SelfTestActivity extends Activity {
                 Log.i(TAG, "DONE remove " + remove);
             }
             finish();
+            return;
+        }
+        String data = getIntent().getStringExtra("import");
+        if (data != null) {
+            started = SystemClock.elapsedRealtime();
+            new Thread(() -> {
+                Uri uri = Uri.fromFile(new File(data));
+                try {
+                    Importer.Plan p = Importer.inspect(this, uri);
+                    VoiceStore.Voice v = Importer.run(this, p, uri, null);
+                    Log.i(TAG, "DONE import " + v.key + " through " + p.donor.key + " in "
+                            + (SystemClock.elapsedRealtime() - started) + "ms");
+                } catch (IOException e) {
+                    Log.e(TAG, "FAIL import: " + e.getMessage());
+                }
+                runOnUiThread(this::finish);
+            }).start();
             return;
         }
         String download = getIntent().getStringExtra("download");
